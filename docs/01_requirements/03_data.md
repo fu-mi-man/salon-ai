@@ -22,14 +22,14 @@
 salons
   └── stores
         └── review_replies
-        └── blog_posts
-              └── blog_post_images
 
 # フェーズ2以降（追加）
 salons
   └── stores
         └── reviews
               └── review_replies（review_idを追加）
+        └── blog_posts
+              └── blog_post_images
 ```
 
 
