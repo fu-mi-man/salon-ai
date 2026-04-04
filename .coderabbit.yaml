@@ -1,0 +1,38 @@
+# CodeRabbit 設定ファイル
+# https://docs.coderabbit.ai/reference/configuration
+
+language: "ja"                                # レビュー言語（日本語）
+
+reviews:
+  path_filters:
+    - "!.agents/skills/**"                    # スキルファイル（自動生成）はレビュー対象外
+    - "!.claude/skills/**"                    # スキルシンボリンク（自動生成）はレビュー対象外
+    - "!web/pnpm-lock.yaml"                   # ロックファイルはレビュー対象外
+  auto_review:
+    drafts: false                             # ドラフトPRはレビューしない
+    enabled: true                             # 自動レビューを有効にする
+  changed_files_summary: false                # 変更ファイル一覧を非表示
+  collapse_walkthrough: true                  # ウォークスルーを折りたたみ表示
+  commit_status: false                        # レビュー中のcommit status更新を無効化
+  estimate_code_review_effort: true           # レビュー工数の見積もりを表示
+  finishing_touches:
+    docstrings:
+      enabled: false                          # Finishing Touchesを無効化
+  high_level_summary: false                   # PRサマリーを無効化
+  poem: false                                 # ポエム生成を無効化
+  profile: "chill"                            # chill（緩め）/ assertive（厳しめ）
+  request_changes_workflow: true              # コメント解決後に自動Approve
+  related_prs: true                           # 関連PRを表示
+  review_status: false                        # 「レビュー中...」コメント無効（メール1通に削減）
+  sequence_diagrams: true                     # シーケンス図を生成
+  tools:
+    biome:
+      enabled: true                           # プロジェクトのリンター連携
+
+knowledge_base:
+  code_guidelines:
+    filePatterns:
+      - "CLAUDE.md"                           # 全体設計判断・コーディング規約
+      - ".claude/rules/frontend.md"           # フロントエンドルール（shadcn/ui, Tailwind v4等）
+      - ".claude/rules/database.md"           # DBアクセスパターン（Server Component必須等）
+      - ".claude/rules/documentation.md"      # ドキュメント更新ルール
