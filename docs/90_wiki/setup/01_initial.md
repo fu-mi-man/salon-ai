@@ -99,7 +99,7 @@ RUN npm install -g pnpm@10.33.0
 
 RUN pnpm config set store-dir /pnpm/store --global
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --offline
 
@@ -135,18 +135,26 @@ services:
     tty: true
 ```
 
+`env_file` は `web/.env.local` の内容をコンテナの環境変数として読み込むための設定。  
+Next.js 側で `NEXT_PUBLIC_*` を参照できるようにしている。
+
 ## 5. 環境変数ファイルを作成
+
+まず `web/.env.example` に共有する環境変数のキーだけを記載する。
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
+
+ローカル用の `web/.env.local` はこれをコピーして作成する。
 
 ```bash
 cp web/.env.example web/.env.local
 ```
 
-`.env.local` に以下を記載する。値はSupabase起動後（手順7）に取得する。
-
-```
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=（supabase startで表示されるPublishable key）
-```
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` の値は Supabase 起動後（手順7）に取得して、
+`web/.env.local` に反映する。
 
 **Secret keyはここに書かない。** GASのスクリプトプロパティのみで管理する。
 
