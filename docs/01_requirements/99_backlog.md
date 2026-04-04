@@ -22,5 +22,4 @@ MVPリリース以降に対応する機能・改善をまとめる。
 - Googleマップ等HPB以外の口コミ対応
 - GAS → Vercel + Inngestへの移行（サロン数10超えたあたりで検討）
 - Sentry・Vercel Analyticsの導入
-- pg_cronによる返信文の自動削除実装
 - 複数店舗対応の本格化

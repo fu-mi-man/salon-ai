@@ -12,7 +12,7 @@
 フェーズ1は認証なしで1サロン固定のため、RLSは将来のマルチテナント対応に備えた設計として最初から入れておく。
 
 ```sql
--- review_replies の例
+-- review_replies の例（フェーズ1.5以降・Supabase Auth導入後に有効化）
 alter table review_replies enable row level security;
 
 create policy "サロンは自分の返信文のみ参照できる"
@@ -21,6 +21,8 @@ create policy "サロンは自分の返信文のみ参照できる"
     select id from stores where salon_id = auth.uid()
   ));
 ```
+
+フェーズ1は認証なし・1サロン固定のため、RLSポリシーは実質無効（GASはService Role Keyで直接アクセス）。フェーズ1.5でSupabase Auth導入後に本格稼働する。
 
 ### APIキー・シークレットの管理
 
