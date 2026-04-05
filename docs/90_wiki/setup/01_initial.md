@@ -213,7 +213,7 @@ supabase start
 `WARN: no files matched pattern: supabase/seed.sql` は seed ファイル未作成の初期状態では問題ない。  
 完了するとローカルの接続情報が表示される。
 
-```
+```text
 Studio: http://127.0.0.1:54323
 Project URL: http://127.0.0.1:54321
 Publishable key: sb_publishable_...
