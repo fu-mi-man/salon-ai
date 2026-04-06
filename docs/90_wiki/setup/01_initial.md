@@ -12,22 +12,25 @@
 cd ~/dev/salon-ai
 
 mise use node@24
-mise use pnpm@10.30.3
-mise use supabase@2.84.6
+mise use pnpm@10.33.0
+mise use supabase@2.84.2
 ```
+
+既存の `mise.toml` を clone してきた環境でツールだけ揃えたい場合は `mise install` を実行する。
 
 `salon-ai/mise.toml` が生成される。バージョンが固定されていることを確認する。
 
 ```bash
 mise list
 # node     24.x.x  ~/dev/salon-ai/mise.toml  24
-# pnpm     10.30.3 ~/dev/salon-ai/mise.toml  10.30.3
-# supabase 2.84.6  ~/dev/salon-ai/mise.toml  2.84.6
+# pnpm     10.33.0 ~/dev/salon-ai/mise.toml  10.33.0
+# supabase 2.84.2  ~/dev/salon-ai/mise.toml  2.84.2
 ```
 
 ## 2. Next.jsプロジェクトを作成
 
 `web/` は `create-next-app` が空ディレクトリを要求するため、一時Dockerfileを使って作成する。
+`create-next-app` の最近の版は、引数を渡していれば対話プロンプトを出さずにデフォルトで進むことがある。
 
 ### 2-1. 一時Dockerfileを作成
 
@@ -35,7 +38,7 @@ mise list
 
 ```dockerfile
 FROM node:24-slim
-RUN npm install -g pnpm@10.30.3
+RUN npm install -g pnpm@10.33.0
 WORKDIR /app
 ```
 
@@ -58,18 +61,30 @@ docker run --rm -it -v $(pwd)/web:/app salon-ai-init pnpm create next-app@latest
   --import-alias='@/*'
 ```
 
-対話プロンプトが出たらすべてEnterでデフォルトを選択する。
+必要なオプションは引数で渡しているため、対話なしで完了して問題ない。
 
-### 2-4. 一時イメージ・Dockerfileを削除
+### 2-4. `web/Dockerfile` を作成してから一時ファイルを削除
+
+`web/` 作成直後に、一時 `Dockerfile` をベースに `web/Dockerfile` を作成する。  
+人間が後から書き直すより、この時点で転記しておく方が確実。
 
 ```bash
+cp Dockerfile web/Dockerfile
 docker rmi salon-ai-init
 rm Dockerfile
 ```
 
-## 3. web/Dockerfileを作成
+### 2-5. `web/.gitignore` に pnpm ストアを追記
 
-`web/Dockerfile` を作成する。
+`create-next-app` 実行時に `web/.pnpm-store/` が作成されることがあるため、`web/.gitignore` に追記しておく。
+
+```gitignore
+/.pnpm-store
+```
+
+## 3. web/Dockerfileを更新
+
+手順2-4で作成した `web/Dockerfile` を、開発用の内容に更新する。  
 CorepackはNode.js 25以降で削除されるため、npmで直接pnpmをインストールする方針をとる。
 
 ```dockerfile
@@ -80,11 +95,11 @@ ENV PATH="$PNPM_HOME:$PATH"
 
 WORKDIR /app
 
-RUN npm install -g pnpm@10.30.3
+RUN npm install -g pnpm@10.33.0
 
 RUN pnpm config set store-dir /pnpm/store --global
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm fetch
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --offline
 
@@ -97,7 +112,7 @@ CMD ["pnpm", "dev"]
 
 ## 4. compose.yamlを作成
 
-プロジェクトルートに `compose.yaml` を作成する。
+プロジェクトルートに `compose.yaml` を作成する。  
 SupabaseはCLIで管理するためDBコンテナは不要。
 
 ```yaml
@@ -120,20 +135,30 @@ services:
     tty: true
 ```
 
+`env_file` は `web/.env.local` の内容をコンテナの環境変数として読み込むための設定。  
+Next.js 側で `NEXT_PUBLIC_*` を参照できるようにしている。
+
+ホスト側の `3000` ポートが既に使用中で起動できない場合は、`ports` の左側だけを `3001:3000` のように変更して回避する。
+
 ## 5. 環境変数ファイルを作成
+
+まず `web/.env.example` に共有する環境変数のキーだけを記載する。
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
+
+ローカル用の `web/.env.local` はこれをコピーして作成する。
 
 ```bash
 cp web/.env.example web/.env.local
 ```
 
-`.env.local` に以下を記載する。値はSupabase起動後（手順7）に取得する。
+`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` の値は Supabase 起動後（手順7）に取得して、
+`web/.env.local` に反映する。
 
-```
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_ANON_KEY=（supabase startで表示されるanon key）
-```
-
-**Service Role Keyはここに書かない。** GASのスクリプトプロパティのみで管理する。
+**Secret keyはここに書かない。** GASのスクリプトプロパティのみで管理する。
 
 ## 6. gasディレクトリをセットアップ
 
@@ -184,17 +209,18 @@ supabase init
 supabase start
 ```
 
-初回は必要なDockerイメージをpullするため数分かかる。
+初回は必要なDockerイメージをpullするため数分かかる。  
+`WARN: no files matched pattern: supabase/seed.sql` は seed ファイル未作成の初期状態では問題ない。  
 完了するとローカルの接続情報が表示される。
 
-```
-API URL: http://127.0.0.1:54321
-anon key: eyJ...
-service_role key: eyJ...
-Studio URL: http://127.0.0.1:54323
+```text
+Studio: http://127.0.0.1:54323
+Project URL: http://127.0.0.1:54321
+Publishable key: sb_publishable_...
+Secret key: sb_secret_...
 ```
 
-`web/.env.local` のURLとanon keyをこの値に書き換える。
+`web/.env.local` のURLとPublishable keyをこの値に書き換える。
 
 ## 8. テーブルを作成
 
@@ -202,7 +228,7 @@ Studio URL: http://127.0.0.1:54323
 supabase migration new create_initial_tables
 ```
 
-`supabase/migrations/` にSQLファイルが生成される。
+`supabase/migrations/` にSQLファイルが生成される。  
 テーブル定義は `docs/01_requirements/03_data.md` を参照してSQLを記述する。
 
 ```bash
@@ -219,12 +245,14 @@ docker compose up --build
 
 http://localhost:3000 にアクセスできれば完了。
 
+`3000` が埋まっていて `3001:3000` に変更した場合は、`http://localhost:3001` にアクセスする。
+
 ## 10. 本番Supabaseの設定
 
 ローカル開発が安定したら本番環境を用意する。
 
 1. https://supabase.com でプロジェクトを作成する
-2. 本番のURL・anon keyを取得する
+2. 本番のURL・Publishable keyを取得する
 3. Vercelの環境変数に設定する（`.env.local` には書かない）
 4. マイグレーションを本番に適用する
 

@@ -1,0 +1,17 @@
+services:
+  web:                                    # Next.js 開発コンテナ
+    build:                                # イメージビルド
+      context: ./web                      # ビルドコンテキスト
+      dockerfile: Dockerfile              # Dockerfile パス
+    container_name: salon-ai-web          # コンテナ名
+    environment:                          # 環境変数
+      NODE_ENV: development               # Node 実行モード
+    env_file:                             # 追加の env ファイル
+      - ./web/.env.local                  # ローカル用シークレット等
+    ports:                                # ポート公開
+      - "3000:3000"                       # ホスト:コンテナ
+    volumes:                              # ボリュームマウント
+      - ./web:/app                        # ソース同期
+      - /app/node_modules                 # node_modules のアノニマスボリューム
+    stdin_open: true                      # 対話シェル用
+    tty: true                             # 擬似端末割り当て
