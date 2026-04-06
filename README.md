@@ -73,15 +73,13 @@ docker compose up --build
 ### gas/ のセットアップ
 
 ```bash
-pnpm add -g @google/clasp
-clasp login
-
 cd gas
 pnpm install
-clasp create --type standalone --title "salon-ai-gas"
+pnpm exec clasp login
+pnpm exec clasp create --type standalone --title "salon-ai-gas"
 # .clasp.json が生成される
 
-clasp push
+pnpm exec clasp push
 ```
 
 詳細は `docs/90_wiki/setup/` を参照。
