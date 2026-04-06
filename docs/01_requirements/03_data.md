@@ -45,7 +45,6 @@ salons
 | name | text | NOT NULL | サロン名 |
 | email | text | NOT NULL, UNIQUE | ログイン用メールアドレス |
 | gmail_address | text | | GAS連携用の専用Gmailアドレス |
-| tone_preset | text | NOT NULL, default 'polite' | polite / casual / concise |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 
@@ -58,6 +57,7 @@ salons
 | id | uuid | PK, default gen_random_uuid() | |
 | salon_id | uuid | NOT NULL, FK → salons.id | |
 | name | text | NOT NULL | 店舗名 |
+| tone_preset | text | NOT NULL, default 'polite' | polite / casual / concise |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 

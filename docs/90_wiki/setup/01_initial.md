@@ -29,7 +29,7 @@ mise list
 
 ## 2. Next.jsプロジェクトを作成
 
-`web/` は `create-next-app` が空ディレクトリを要求するため、一時Dockerfileを使って作成する。
+`web/` は `create-next-app` が空ディレクトリを要求するため、一時Dockerfileを使って作成する。  
 `create-next-app` の最近の版は、引数を渡していれば対話プロンプトを出さずにデフォルトで進むことがある。
 
 ### 2-1. 一時Dockerfileを作成
@@ -140,7 +140,30 @@ Next.js 側で `NEXT_PUBLIC_*` を参照できるようにしている。
 
 ホスト側の `3000` ポートが既に使用中で起動できない場合は、`ports` の左側だけを `3001:3000` のように変更して回避する。
 
-## 5. 環境変数ファイルを作成
+## 5. Supabaseをセットアップ
+
+```bash
+supabase init
+```
+
+`supabase/` ディレクトリが生成される。
+
+```bash
+supabase start
+```
+
+初回は必要なDockerイメージをpullするため数分かかる。  
+`WARN: no files matched pattern: supabase/seed.sql` は seed ファイル未作成の初期状態では問題ない。  
+完了するとローカルの接続情報が表示される。
+
+```text
+Studio: http://127.0.0.1:54323
+Project URL: http://127.0.0.1:54321
+Publishable key: sb_publishable_...
+Secret key: sb_secret_...
+```
+
+## 6. 環境変数ファイルを作成
 
 まず `web/.env.example` に共有する環境変数のキーだけを記載する。
 
@@ -149,18 +172,40 @@ NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-ローカル用の `web/.env.local` はこれをコピーして作成する。
+ローカル用の `web/.env.local` はこれをコピーして作成し、手順5で取得した Publishable key を反映する。
 
 ```bash
 cp web/.env.example web/.env.local
 ```
 
-`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` の値は Supabase 起動後（手順7）に取得して、
-`web/.env.local` に反映する。
-
 **Secret keyはここに書かない。** GASのスクリプトプロパティのみで管理する。
 
-## 6. gasディレクトリをセットアップ
+## 7. テーブルを作成
+
+```bash
+supabase migration new create_initial_tables
+```
+
+`supabase/migrations/` にSQLファイルが生成される。  
+テーブル定義は `docs/01_requirements/03_data.md` を参照してSQLを記述する。
+
+```bash
+supabase db reset
+```
+
+ブラウザで http://127.0.0.1:54323 を開き、テーブルが作成されていることを確認する。
+
+## 8. Next.jsを起動
+
+```bash
+docker compose up --build
+```
+
+http://localhost:3000 にアクセスできれば完了。
+
+`3000` が埋まっていて `3001:3000` に変更した場合は、`http://localhost:3001` にアクセスする。
+
+## 9. gasディレクトリをセットアップ
 
 ```bash
 mkdir -p gas/src
@@ -196,56 +241,6 @@ clasp create --type standalone --title "salon-ai-gas"
 ```bash
 cd ..  # プロジェクトルートに戻る
 ```
-
-## 7. Supabaseをセットアップ
-
-```bash
-supabase init
-```
-
-`supabase/` ディレクトリが生成される。
-
-```bash
-supabase start
-```
-
-初回は必要なDockerイメージをpullするため数分かかる。  
-`WARN: no files matched pattern: supabase/seed.sql` は seed ファイル未作成の初期状態では問題ない。  
-完了するとローカルの接続情報が表示される。
-
-```text
-Studio: http://127.0.0.1:54323
-Project URL: http://127.0.0.1:54321
-Publishable key: sb_publishable_...
-Secret key: sb_secret_...
-```
-
-`web/.env.local` のURLとPublishable keyをこの値に書き換える。
-
-## 8. テーブルを作成
-
-```bash
-supabase migration new create_initial_tables
-```
-
-`supabase/migrations/` にSQLファイルが生成される。  
-テーブル定義は `docs/01_requirements/03_data.md` を参照してSQLを記述する。
-
-```bash
-supabase db reset
-```
-
-http://127.0.0.1:54323 でStudioが開く。テーブルが作成されていることを確認する。
-
-## 9. Next.jsを起動
-
-```bash
-docker compose up --build
-```
-
-http://localhost:3000 にアクセスできれば完了。
-
-`3000` が埋まっていて `3001:3000` に変更した場合は、`http://localhost:3001` にアクセスする。
 
 ## 10. 本番Supabaseの設定
 

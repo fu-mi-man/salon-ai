@@ -9,7 +9,7 @@ services:
     env_file:                             # 追加の env ファイル
       - ./web/.env.local                  # ローカル用シークレット等
     ports:                                # ポート公開
-      - "3000:3000"                       # ホスト:コンテナ
+      - "3001:3000"                       # ホスト:コンテナ
     volumes:                              # ボリュームマウント
       - ./web:/app                        # ソース同期
       - /app/node_modules                 # node_modules のアノニマスボリューム
