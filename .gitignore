@@ -1,3 +1,6 @@
 .playwright-mcp/
 supabase/.branches/
 supabase/.temp/
+gas/node_modules/
+gas/dist/
+gas/.clasp.json

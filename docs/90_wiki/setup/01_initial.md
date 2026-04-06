@@ -214,6 +214,14 @@ pnpm init
 pnpm add -D @types/google-apps-script typescript @google/clasp
 ```
 
+プロジェクトルートの `.gitignore` に、GAS の依存関係と生成物を追記する。
+
+```gitignore
+gas/node_modules/
+gas/dist/
+gas/.clasp.json
+```
+
 `gas/tsconfig.json` を作成する。
 
 ```json
@@ -232,29 +240,11 @@ pnpm add -D @types/google-apps-script typescript @google/clasp
 claspでGASプロジェクトを作成する（Googleアカウントでのログインが必要）。
 
 ```bash
-clasp login
-clasp create --type standalone --title "salon-ai-gas"
+pnpm exec clasp login
+pnpm exec clasp create --type standalone --title "salon-ai-gas"
 ```
 
 `.clasp.json` が生成されることを確認する。
-
-```bash
-cd ..  # プロジェクトルートに戻る
-```
-
-## 10. 本番Supabaseの設定
-
-ローカル開発が安定したら本番環境を用意する。
-
-1. https://supabase.com でプロジェクトを作成する
-2. 本番のURL・Publishable keyを取得する
-3. Vercelの環境変数に設定する（`.env.local` には書かない）
-4. マイグレーションを本番に適用する
-
-```bash
-supabase link --project-ref xxx
-supabase db push
-```
 
 ## 日常の開発フロー
 

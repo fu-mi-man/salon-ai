@@ -27,7 +27,7 @@ docker compose exec web pnpm lint
 docker compose exec web pnpm test
 
 # gas/ での作業はホストで実行する
-cd gas && clasp push
+cd gas && pnpm exec clasp push
 ```
 
 
