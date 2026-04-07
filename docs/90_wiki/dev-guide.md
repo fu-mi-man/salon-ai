@@ -29,6 +29,7 @@ docs/
 │
 ├── 90_wiki/                    # 開発者向けガイド・セットアップ手順
 │   ├── dev-guide.md            # 本ドキュメント
+│   ├── testing.md              # テスト戦略・書き方・運用方針
 │   └── setup/                  # 環境構築手順
 │       ├── 00_claude-code.md   # Claude Codeのプラグイン・スキル・MCP設定
 │       ├── 01_initial.md       # プロジェクト初期構築手順
@@ -76,17 +77,22 @@ docs/
 ### パッケージの追加・更新手順
 
 ```bash
-docker compose down                                          # コンテナ削除（anonymous volume は孤立状態になる）
+docker compose down                                          # コンテナ削除（古い anonymous volume は孤立状態になる）
+docker compose build web                                    # 最新の Dockerfile / pnpm 設定を反映
 docker compose run --rm web pnpm add <package>             # 依存追加
 docker compose run --rm web pnpm add -D <package>          # 開発依存追加
 docker compose up --build -d                               # イメージ再ビルド＋起動（新しい anonymous volume が生成される）
 ```
 
+`docker volume prune` は常用手順ではない。`ERR_PNPM_UNEXPECTED_STORE` や壊れた `node_modules` volume が残っているときだけ実行する。
+
 **なぜこの手順が必要か？**
 
 - `docker compose exec` でコンテナに入って `pnpm add` すると、dev サーバーが `package.json` の変更を検知してクラッシュする。`docker compose run` は CMD（dev サーバー）を実行せずに指定コマンドだけ実行するため安全
+- `docker compose run` の前に `docker compose build web` を入れることで、Dockerfile の pnpm 設定変更を実行用コンテナにも反映できる
 - `run` で更新された `node_modules` は一時コンテナ内のみ。実行中コンテナの anonymous volume には反映されないため、`--build` でイメージを再構築し、新しい anonymous volume に初期化し直す必要がある
 - pnpm はシンボリンクベースの `node_modules` 構造を採用しているため named volume との相性が悪く、anonymous volume を使う必要がある（[pnpm/pnpm#2720](https://github.com/pnpm/pnpm/issues/2720)）
+- pnpm は `store` と `node_modules` を組み合わせて使う。`node_modules` がどの `store` を参照して作られたかがズレると `ERR_PNPM_UNEXPECTED_STORE` が発生する
 
 **node_modules が壊れた場合（クラッシュ後など）**
 

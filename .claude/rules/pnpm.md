@@ -5,6 +5,7 @@
 
 ```bash
 docker compose down
+docker volume prune                                        # 孤立した anonymous volume を削除（store 競合を防ぐ）
 docker compose run --rm web pnpm add <package>             # 依存追加
 docker compose run --rm web pnpm add -D <package>          # 開発依存追加
 docker compose up --build -d
