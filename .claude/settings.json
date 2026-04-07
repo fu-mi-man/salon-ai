@@ -21,6 +21,8 @@
       "Bash(git checkout:*)",
       "Bash(git diff:*)",
       "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git rebase:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
       "Bash(git status:*)",
@@ -29,6 +31,8 @@
       "Bash(mkdir:*)",
       "Bash(touch:*)",
       "Bash(tree:*)",
+      "Read",
+      "Skill(code-review:code-review)",
       "WebFetch",
       "WebSearch",
       "Write"
