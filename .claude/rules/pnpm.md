@@ -5,11 +5,13 @@
 
 ```bash
 docker compose down
-docker volume prune                                        # 孤立した anonymous volume を削除（store 競合を防ぐ）
+docker compose build web                                   # 最新の Dockerfile / pnpm 設定を反映
 docker compose run --rm web pnpm add <package>             # 依存追加
 docker compose run --rm web pnpm add -D <package>          # 開発依存追加
 docker compose up --build -d
 ```
+
+`docker volume prune` は常用手順ではない。`ERR_PNPM_UNEXPECTED_STORE` や壊れた `node_modules` volume が残っているときだけ実行する。
 
 詳細は `docs/90_wiki/dev-guide.md` のパッケージ管理セクションを参照。
 

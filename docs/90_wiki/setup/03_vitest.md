@@ -91,4 +91,4 @@ docker compose exec web pnpm test --run
 
 テストがパスすれば完了。確認後にファイルを削除する。
 
-テスト配置方針やテストの書き方は [../testing.md](/Users/fumi/dev/salon-ai/docs/90_wiki/testing.md) を参照。
+テスト配置方針やテストの書き方は [../testing.md](../testing.md) を参照。
