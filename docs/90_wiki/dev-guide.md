@@ -31,7 +31,8 @@ docs/
 │   ├── dev-guide.md            # 本ドキュメント
 │   └── setup/                  # 環境構築手順
 │       ├── 00_claude-code.md   # Claude Codeのプラグイン・スキル・MCP設定
-│       └── 01_initial.md       # プロジェクト初期構築手順
+│       ├── 01_initial.md       # プロジェクト初期構築手順
+│       └── 02_biome.md         # Biome（リンター・フォーマッター）導入手順
 │
 └── 99_research/                # 調査・リサーチ
     ├── technology/             # 技術調査
@@ -68,6 +69,37 @@ docs/
 **調査内容を残す場所。**
 
 技術選定の根拠・競合調査・HPBの制約調査など、意思決定の背景となった情報を保存する。後から「なぜこの技術を選んだのか」を確認できるようにする。
+
+
+## パッケージ管理
+
+### パッケージの追加・更新手順
+
+```bash
+docker compose down                                          # コンテナ削除（anonymous volume は孤立状態になる）
+docker compose run --rm web pnpm add <package>             # 依存追加
+docker compose run --rm web pnpm add -D <package>          # 開発依存追加
+docker compose up --build -d                               # イメージ再ビルド＋起動（新しい anonymous volume が生成される）
+```
+
+**なぜこの手順が必要か？**
+
+- `docker compose exec` でコンテナに入って `pnpm add` すると、dev サーバーが `package.json` の変更を検知してクラッシュする。`docker compose run` は CMD（dev サーバー）を実行せずに指定コマンドだけ実行するため安全
+- `run` で更新された `node_modules` は一時コンテナ内のみ。実行中コンテナの anonymous volume には反映されないため、`--build` でイメージを再構築し、新しい anonymous volume に初期化し直す必要がある
+- pnpm はシンボリンクベースの `node_modules` 構造を採用しているため named volume との相性が悪く、anonymous volume を使う必要がある（[pnpm/pnpm#2720](https://github.com/pnpm/pnpm/issues/2720)）
+
+**node_modules が壊れた場合（クラッシュ後など）**
+
+dev サーバーのクラッシュ時に anonymous volume 内の `node_modules` が破損した状態で残ることがある。再起動しても復旧しない場合は volume を手動で削除する。
+
+```bash
+docker inspect salon-ai-web -f '{{range .Mounts}}{{.Name}} {{end}}'  # 紐づく anonymous volume ID を確認
+docker compose down                                                   # コンテナ削除
+docker volume rm <上で確認したID>                                      # 破損した volume を削除
+docker compose up --build -d                                          # 再ビルド＋起動
+```
+
+孤立した anonymous volume は定期的に `docker volume prune` で掃除する。
 
 
 ## 開発の進め方
