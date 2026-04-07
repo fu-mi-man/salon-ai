@@ -12,7 +12,7 @@ docker compose up --build -d
 
 詳細は `docs/90_wiki/dev-guide.md` のパッケージ管理セクションを参照。
 
-# shadcn/ui コンポーネント追加
+## shadcn/ui コンポーネント追加
 
 コンポーネントを追加するときはコンテナ内で実行する。
 

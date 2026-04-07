@@ -31,7 +31,8 @@ docs/
 │   ├── dev-guide.md            # 本ドキュメント
 │   └── setup/                  # 環境構築手順
 │       ├── 00_claude-code.md   # Claude Codeのプラグイン・スキル・MCP設定
-│       └── 01_initial.md       # プロジェクト初期構築手順
+│       ├── 01_initial.md       # プロジェクト初期構築手順
+│       └── 02_biome.md         # Biome（リンター・フォーマッター）導入手順
 │
 └── 99_research/                # 調査・リサーチ
     ├── technology/             # 技術調査
