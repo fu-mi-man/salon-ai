@@ -100,7 +100,7 @@ web/
             └── summary.test.ts
 ```
 
-`vitest.config.ts` の `include` は `src/**/*.test.{ts,tsx}` なので，`src/` 配下のテストは自動検出される。
+`vitest.config.ts` の `include` は `src/**/*.test.{ts,tsx}` と `tests/**/*.test.{ts,tsx}` なので，どちらに置いても自動検出される。
 
 `tests/` を使うのは次のような場合に限る。
 
