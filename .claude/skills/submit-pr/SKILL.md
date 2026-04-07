@@ -50,7 +50,9 @@ main との差分が混入しないよう、push 前に最新化を行う。
    - 進んでいる → `git rebase origin/main` を実行
      - 競合が出たらユーザーに報告し、解決するか `git rebase --abort` で中断するか判断を仰ぐ
    - 進んでいない → rebase しない
-3. `git push` を実行（既にリモートに push 済みの場合は `--force-with-lease` を付ける）
+3. push を実行する
+   - rebase を実行した場合（履歴が書き換わった）→ `git push --force-with-lease`
+   - rebase しなかった場合（新しいコミットを積んだだけ）→ `git push`
 
 ### Step 4: PR作成
 
