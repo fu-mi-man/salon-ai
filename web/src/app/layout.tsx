@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// variable prop で CSS カスタムプロパティ（--font-geist-sans）を生成する
-// Tailwind の font-sans クラスからこの変数を参照して適用される
+// variable prop で CSS カスタムプロパティ（--font-sans）を生成する
+// shadcn Nova プリセットの globals.css が --font-sans を参照するためこの名前にする
 const geistSans = Geist({
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
