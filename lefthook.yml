@@ -1,0 +1,9 @@
+pre-commit:
+  piped: true
+  commands:
+    typecheck:
+      priority: 1
+      run: docker compose exec -T web pnpm typecheck
+    lint:
+      priority: 2
+      run: docker compose exec -T web pnpm lint
