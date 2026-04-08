@@ -77,6 +77,7 @@ Supabase のスキーマから TypeScript 型を自動生成する。
 マイグレーションを実行した後に都度実行する。
 
 ```bash
+# ホストで実行（Supabase CLI がインストールされている環境）
 supabase gen types typescript --local > web/src/lib/supabase/database.types.ts
 ```
 

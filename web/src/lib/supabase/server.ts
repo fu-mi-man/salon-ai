@@ -2,6 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import type { Database } from "@/lib/supabase/database.types";
 
+/**
+ * Server Component / Server Actions 用の Supabase クライアントを生成する。
+ * Cookie ストアを介してセッション管理を行う。
+ */
 export async function createClient() {
   const cookieStore = await cookies();
 
