@@ -108,11 +108,7 @@ function statusClassName(status: Status): string {
     return "border-amber-200 bg-amber-50 text-amber-700";
   }
 
-  if (status === "done") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  }
-
-  return "border-amber-200 bg-amber-50 text-amber-700";
+  return "border-emerald-200 bg-emerald-50 text-emerald-700";
 }
 
 /**
@@ -131,6 +127,8 @@ export default function DashboardPage() {
   const [confirmDoneId, setConfirmDoneId] = useState<string | null>(null);
   const [tonePickerId, setTonePickerId] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
 
   /**
    * textarea の高さを入力内容に合わせて再計算する
@@ -154,7 +152,11 @@ export default function DashboardPage() {
   function handleCopy(id: string, body: string) {
     navigator.clipboard.writeText(body).then(() => {
       setCopiedId(id);
-      setTimeout(() => setCopiedId((prev) => (prev === id ? null : prev)), 2000);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      copyTimerRef.current = setTimeout(
+        () => setCopiedId((prev) => (prev === id ? null : prev)),
+        2000,
+      );
     });
   }
 
@@ -220,7 +222,8 @@ export default function DashboardPage() {
     setDraftBody(body);
     setConfirmDoneId(null);
     setTonePickerId(null);
-    requestAnimationFrame(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
       if (textareaRef.current) resizeTextarea(textareaRef.current);
     });
   }
