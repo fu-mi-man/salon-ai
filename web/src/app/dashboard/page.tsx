@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, CheckCircle2, Copy, Pencil, RefreshCw, Save, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -129,6 +129,13 @@ export default function DashboardPage() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rafRef = useRef<ReturnType<typeof requestAnimationFrame> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   /**
    * textarea の高さを入力内容に合わせて再計算する
@@ -259,6 +266,9 @@ export default function DashboardPage() {
    */
   function handleAskDone(id: string) {
     setConfirmDoneId(id);
+    setEditingId(null);
+    setDraftBody("");
+    setTonePickerId(null);
   }
 
   /**
@@ -322,7 +332,7 @@ export default function DashboardPage() {
               {editingId === reply.id ? (
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     onClick={handleCancelEdit}
                     size="default"
                     variant="outline"
@@ -331,7 +341,7 @@ export default function DashboardPage() {
                     キャンセル
                   </Button>
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     onClick={() => handleSaveEdit(reply.id)}
                     size="default"
                     variant="outline"
@@ -343,7 +353,7 @@ export default function DashboardPage() {
               ) : tonePickerId === reply.id ? (
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     onClick={handleCancelTonePicker}
                     size="default"
                     variant="outline"
@@ -353,7 +363,7 @@ export default function DashboardPage() {
                   </Button>
                   {TONES.map((tone) => (
                     <Button
-                      className="min-h-10 w-full cursor-pointer bg-white"
+                      className="min-h-11 w-full cursor-pointer bg-white"
                       key={tone}
                       onClick={() => handleRegenerate(reply.id, tone)}
                       size="default"
@@ -366,7 +376,7 @@ export default function DashboardPage() {
               ) : confirmDoneId === reply.id ? (
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     onClick={handleCancelDone}
                     size="default"
                     variant="outline"
@@ -375,7 +385,7 @@ export default function DashboardPage() {
                     キャンセル
                   </Button>
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     onClick={() => handleMarkDone(reply.id)}
                     size="default"
                     variant="outline"
@@ -388,7 +398,7 @@ export default function DashboardPage() {
                 // 通常時は主要4操作を 2 x 2 で固定し、スマホでも押し間違えにくい形にする。
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     onClick={() => handleCopy(reply.id, reply.body)}
                     size="default"
                     variant="outline"
@@ -406,7 +416,7 @@ export default function DashboardPage() {
                     )}
                   </Button>
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     disabled={reply.status === "done"}
                     onClick={() => handleStartEdit(reply.id, reply.body)}
                     size="default"
@@ -416,7 +426,7 @@ export default function DashboardPage() {
                     編集する
                   </Button>
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     disabled={reply.status === "done"}
                     onClick={() => handleAskDone(reply.id)}
                     size="default"
@@ -426,7 +436,7 @@ export default function DashboardPage() {
                     {reply.status === "done" ? "対応済み" : "対応済みにする"}
                   </Button>
                   <Button
-                    className="min-h-10 w-full cursor-pointer bg-white"
+                    className="min-h-11 w-full cursor-pointer bg-white"
                     disabled={reply.status === "done"}
                     onClick={() => handleOpenTonePicker(reply.id)}
                     size="default"
@@ -452,14 +462,14 @@ export default function DashboardPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-5">
         <Tabs className="w-full" onValueChange={(v) => setTab(v as TabKey)} value={tab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger className="cursor-pointer" value="pending">
+          <TabsList className="grid h-11 w-full grid-cols-3">
+            <TabsTrigger className="min-h-11 cursor-pointer" value="pending">
               未対応
             </TabsTrigger>
-            <TabsTrigger className="cursor-pointer" value="done">
+            <TabsTrigger className="min-h-11 cursor-pointer" value="done">
               対応済み
             </TabsTrigger>
-            <TabsTrigger className="cursor-pointer" value="all">
+            <TabsTrigger className="min-h-11 cursor-pointer" value="all">
               すべて
             </TabsTrigger>
           </TabsList>
