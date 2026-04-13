@@ -462,16 +462,10 @@ export default function DashboardPage() {
 
       <main className="mx-auto max-w-3xl px-4 py-5">
         <Tabs className="w-full" onValueChange={(v) => setTab(v as TabKey)} value={tab}>
-          <TabsList className="grid h-11 w-full grid-cols-3">
-            <TabsTrigger className="min-h-11 cursor-pointer" value="pending">
-              未対応
-            </TabsTrigger>
-            <TabsTrigger className="min-h-11 cursor-pointer" value="done">
-              対応済み
-            </TabsTrigger>
-            <TabsTrigger className="min-h-11 cursor-pointer" value="all">
-              すべて
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="pending">未対応</TabsTrigger>
+            <TabsTrigger value="done">対応済み</TabsTrigger>
+            <TabsTrigger value="all">すべて</TabsTrigger>
           </TabsList>
           <TabsContent className="mt-6" value="pending">
             {renderReplies(replies.filter((r) => r.status === "pending"))}
