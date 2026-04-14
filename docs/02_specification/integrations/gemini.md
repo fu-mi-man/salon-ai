@@ -2,7 +2,7 @@
 
 **用途**: 口コミ返信文の生成（フェーズ1）・ブログ原稿生成（フェーズ2）
 **モデル**: `gemini-2.0-flash`
-**呼び出し元**: GAS（UrlFetchApp）・Next.js Server Action（fetch）
+**呼び出し元**: Next.js Server Action（fetch）
 
 
 ## 口コミ返信生成
@@ -32,19 +32,20 @@ POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:ge
 ### User Prompt
 
 ```
-【トーン】{toneLabel}
-【口コミ内容】{reviewBody}
-【施術メニュー】{treatmentMenus}
-【評価】総合{ratingOverall}・雰囲気{ratingAtmosphere}・接客{ratingService}・技術{ratingSkill}・メニュー{ratingPrice}
+## 担当スタッフの返信例文
+{toneExamples[0]}
+---
+{toneExamples[1]}
+---
+{toneExamples[2]}
+
+## お客様の口コミ
+{reviewBody}
+
+上記の例文と同じ口調・文体で返信文を生成してください。
 ```
 
-### TonePreset
-
-| 値 | toneLabel |
-|---|---|
-| `polite` | 丁寧でフォーマルなトーンで |
-| `casual` | 親しみやすくカジュアルなトーンで |
-| `concise` | 簡潔にまとめて |
+`toneExamples` はスタッフに登録された過去の返信文（few-shot）。登録件数が3件未満の場合は存在する分だけ含める。
 
 ### リクエスト構造
 
@@ -74,22 +75,6 @@ const replyText = result.candidates[0].content.parts[0].text
 
 
 ## 呼び出し元別の実装
-
-### GAS（UrlFetchApp）
-
-```typescript
-const response = UrlFetchApp.fetch(url, {
-  method: 'post',
-  contentType: 'application/json',
-  payload: JSON.stringify(requestBody),
-  muteHttpExceptions: true
-})
-
-if (response.getResponseCode() !== 200) {
-  console.error('Gemini API error:', response.getContentText())
-  throw new Error('Gemini API failed')
-}
-```
 
 ### Next.js Server Action（fetch）
 
