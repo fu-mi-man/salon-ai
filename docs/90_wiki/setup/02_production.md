@@ -2,7 +2,7 @@
 
 ## 1. 対象範囲
 
-ローカル開発が安定した後に、本番の Supabase / Vercel / GAS を用意する際の手順をまとめる。
+ローカル開発が安定した後に、本番の Supabase / Vercel を用意する際の手順をまとめる。
 
 ## 2. Supabase本番プロジェクトの作成
 
@@ -25,8 +25,6 @@ supabase db push
 
 本番のURL・Publishable keyをVercelの環境変数に設定する。`.env.local` には書かない。
 
-## 6. GASの本番用設定
+## 6. 本番確認
 
-## 7. 本番確認
-
-## 8. 注意事項
+## 7. 注意事項

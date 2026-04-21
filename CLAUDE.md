@@ -9,7 +9,6 @@
 ```
 salon-ai/
 ├── web/    # Next.js アプリ
-├── gas/    # Google Apps Script（clasp管理）
 └── docs/   # ドキュメント
 ```
 
@@ -25,9 +24,6 @@ docker compose exec web pnpm dev
 docker compose exec web pnpm typecheck
 docker compose exec web pnpm lint
 docker compose exec web pnpm test
-
-# gas/ での作業はホストで実行する
-cd gas && pnpm exec clasp push
 ```
 
 
@@ -45,6 +41,5 @@ cd gas && pnpm exec clasp push
 
 - **HPBへの自動投稿は実装しない**（利用規約【2】違反のため）
 - **口コミ本文・投稿者情報はフェーズ1では保存しない**（個人情報リスク回避）
-- **GASからSupabaseへの書き込みはNext.jsを経由しない**（Supabase REST APIを直接叩く）
-- **フェーズ1は認証なし**（フェーズ1.5でSupabase Authを追加する）
+- **フェーズ1からSupabase Authを導入する**（email/password・1サロン1アカウント）
 - **Supabaseクライアントをそのまま使う**（DrizzleやPrismaは導入しない）

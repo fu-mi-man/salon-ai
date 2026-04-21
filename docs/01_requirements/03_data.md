@@ -11,8 +11,7 @@
 生成した返信文のみ保存する。リーガルチェック不要。  
 
 ### フェーズ2以降（SaaS本格展開時）
-`reviews` テーブルを追加し、口コミ情報を保存する設計に拡張する。  
-このタイミングでリーガルチェックを入れ、プライバシーポリシーを整備する。  
+`blog_posts` / `blog_post_images` テーブルを追加し，ブログ投稿支援機能を実装する。  
 
 
 ## ER図
@@ -21,13 +20,13 @@
 # フェーズ1
 salons
   └── stores
+        ├── staff
+        │     └── staff_tone_examples
         └── review_replies
 
 # フェーズ2以降（追加）
 salons
   └── stores
-        └── reviews
-              └── review_replies（review_idを追加）
         └── blog_posts
               └── blog_post_images
 ```
@@ -38,13 +37,12 @@ salons
 ### salons（サロン）
 
 マルチテナントの単位。オーナー1名につき1レコード。  
+Supabase Authの `auth.users.id` と `salons.id` を一致させる。メールアドレスは `auth.users` で管理するため `salons` テーブルには持たない。
 
 | カラム | 型 | 制約 | 備考 |
 |---|---|---|---|
-| id | uuid | PK, default gen_random_uuid() | |
+| id | uuid | PK, default gen_random_uuid() | Supabase Auth の user_id と同一 |
 | name | text | NOT NULL | サロン名 |
-| email | text | NOT NULL, UNIQUE | ログイン用メールアドレス |
-| gmail_address | text | | GAS連携用の専用Gmailアドレス |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 
@@ -57,61 +55,53 @@ salons
 | id | uuid | PK, default gen_random_uuid() | |
 | salon_id | uuid | NOT NULL, FK → salons.id | |
 | name | text | NOT NULL | 店舗名 |
-| tone_preset | text | NOT NULL, default 'polite' | polite / casual / concise |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 
 
 ## review ドメイン
 
-### review_replies（口コミ返信）
+### staff（スタッフ）
 
-AIが生成した返信文のみを保存する。口コミ本文・投稿者情報は保存しない。
+返信生成時に担当者を選択するためのテーブル。スタッフはログインしない（データとしてのみ存在する）。  
+フェーズ1のMVPではDB直接挿入で初期データを投入する（管理UIはMVP外）。
 
 | カラム | 型 | 制約 | 備考 |
 |---|---|---|---|
 | id | uuid | PK, default gen_random_uuid() | |
 | store_id | uuid | NOT NULL, FK → stores.id | |
-| review_id | uuid | NULL, FK → reviews.id | フェーズ2以降に使用。フェーズ1はNULL |
-| body | text | NOT NULL | 生成された返信文 |
-| tone_preset | text | NOT NULL | 生成時のトーン: polite / casual / concise |
-| status | text | NOT NULL, default 'pending' | pending / in_progress / done |
-| status_changed_at | timestamptz | | ステータス変更日時 |
-| expires_at | timestamptz | | done後30日で自動削除 |
+| name | text | NOT NULL | スタッフ名 |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 
-**status の定義**
+### staff_tone_examples（スタッフ返信例文）
 
-| 値 | 意味 |
-|---|---|
-| pending | 未対応（生成直後の初期状態） |
-| in_progress | 確認中（将来のスタイリスト対応を見越した状態） |
-| done | 対応済み（オーナーが手動で切り替え） |
+Gemini APIのfew-shot用。スタッフが実際に書いた過去の返信文を登録する。  
+件数の上限は設けない（精度検証後に運用ルールで管理）。  
+ポジティブ・ネガティブ口コミ用の例文を区別せず混在させる。
 
-### reviews（口コミ）※ フェーズ2以降に追加
+| カラム | 型 | 制約 | 備考 |
+|---|---|---|---|
+| id | uuid | PK, default gen_random_uuid() | |
+| staff_id | uuid | NOT NULL, FK → staff.id | |
+| body | text | NOT NULL | 返信例文本文 |
+| order | smallint | NOT NULL, default 0 | プロンプトへの組み込み順 |
+| created_at | timestamptz | NOT NULL, default now() | |
 
-口コミ本文・投稿者情報を保存する。SaaS本格展開時にリーガルチェックの上で追加する。
+### review_replies（口コミ返信）
+
+AIが生成した返信文のみを保存する。口コミ本文・投稿者情報・評価は保存しない。
 
 | カラム | 型 | 制約 | 備考 |
 |---|---|---|---|
 | id | uuid | PK, default gen_random_uuid() | |
 | store_id | uuid | NOT NULL, FK → stores.id | |
-| body | text | NOT NULL | 口コミ本文 |
-| reviewer_name | text | | 投稿者名（例: あいかわさん） |
-| reviewer_gender | text | | 性別 |
-| reviewer_age_group | text | | 年代（例: 40代） |
-| rating_overall | smallint | | 総合評価 1〜5 |
-| rating_atmosphere | smallint | | 雰囲気 |
-| rating_service | smallint | | 接客サービス |
-| rating_skill | smallint | | 技術・仕上がり |
-| rating_price | smallint | | メニュー・料金 |
-| coupon_name | text | | 予約時のクーポン名 |
-| treatment_menus | text[] | | 施術メニュー（複数対応） |
-| reviewed_at | date | | 投稿日 |
-| notified_at | timestamptz | NOT NULL | メール通知の受信日時 |
+| staff_id | uuid | NULL, FK → staff.id | スタッフ削除時はNULL |
+| staff_name | text | NOT NULL | 生成時のスタッフ名スナップショット |
+| body | text | NOT NULL | 生成された返信文 |
+| expires_at | timestamptz | | 最終更新から30日後に自動削除 |
 | created_at | timestamptz | NOT NULL, default now() | |
-| expires_at | timestamptz | | 30日で自動削除 |
+| updated_at | timestamptz | NOT NULL, default now() | |
 
 
 ## blog ドメイン
@@ -126,8 +116,6 @@ AIが生成したブログ原稿を保存する。フェーズ2から使用。
 | store_id | uuid | NOT NULL, FK → stores.id | |
 | title | text | | ブログタイトル |
 | body | text | NOT NULL | 生成されたブログ本文 |
-| status | text | NOT NULL, default 'pending' | pending / in_progress / done |
-| status_changed_at | timestamptz | | ステータス変更日時 |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 
@@ -146,8 +134,7 @@ AIが生成したブログ原稿を保存する。フェーズ2から使用。
 
 ## 設計上の注意事項
 
-- 全テーブルにRLS（Row Level Security）を設定し、`salon_id` または `store_id` でデータを分離する
-- フェーズ1は認証なし・1サロン固定で動かすが、テーブル構造はマルチテナント対応済みのため認証追加時の変更は最小限
+- 全テーブルにRLS（Row Level Security）を設定し，`salon_id` または `store_id` でデータを分離する
+- フェーズ1はSupabase Authでemail/passwordログイン。1サロン1アカウント（オーナーのみ）。テーブル構造はマルチテナント対応済みのため，スタッフ個別ログイン追加時の変更は最小限
 - `expires_at` による自動削除はSupabaseのpg_cronで定期実行する
-- `tone_preset` はアプリ側でenum管理し、DBはtextで持つ
-- `reviews` テーブルはフェーズ2追加時にリーガルチェックを必ず実施する
+- `staff_name` は生成時点のスナップショット。スタッフレコード削除後も履歴カードに名前を表示するために保持する
