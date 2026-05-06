@@ -24,7 +24,3 @@ supabase db push
 ## 5. Vercel環境変数の設定
 
 本番のURL・Publishable keyをVercelの環境変数に設定する。`.env.local` には書かない。
-
-## 6. 本番確認
-
-## 7. 注意事項
