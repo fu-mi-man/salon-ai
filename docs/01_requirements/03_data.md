@@ -16,9 +16,10 @@
 
 ## ER図
 
-```
+```text
 # フェーズ1
 salons
+  └── salon_users
   └── stores
         ├── staff
         │     └── staff_tone_examples
@@ -36,13 +37,29 @@ salons
 
 ### salons（サロン）
 
-マルチテナントの単位。オーナー1名につき1レコード。  
-Supabase Authの `auth.users.id` と `salons.id` を一致させる。メールアドレスは `auth.users` で管理するため `salons` テーブルには持たない。
+マルチテナントの単位。1サロンにつき1レコード。  
+認証ユーザーとは分離し、サロン名などの業務情報を保持する。
 
 | カラム | 型 | 制約 | 備考 |
 |---|---|---|---|
-| id | uuid | PK, default gen_random_uuid() | Supabase Auth の user_id と同一 |
+| id | uuid | PK, default gen_random_uuid() | |
 | name | text | NOT NULL | サロン名 |
+| created_at | timestamptz | NOT NULL, default now() | |
+| updated_at | timestamptz | NOT NULL, default now() | |
+
+### salon_users（ログインユーザー）
+
+Supabase Authの `auth.users` と1対1対応する。  
+フェーズ1は**最小MVPとして** `owner` / `staff` の2ロールのみを持つ。  
+同一サロン内のどのスタッフ設定を本人のものとして扱うかを `staff_id` で紐づける。
+
+| カラム | 型 | 制約 | 備考 |
+|---|---|---|---|
+| user_id | uuid | PK, FK → auth.users.id | ログインユーザーID |
+| salon_id | uuid | NOT NULL, FK → salons.id | 所属サロン |
+| staff_id | uuid | NULL, UNIQUE, FK → staff.id | 対応するスタッフ設定。ownerはNULL可 |
+| role | text | NOT NULL | `owner` or `staff` |
+| display_name | text | NOT NULL | 画面表示名 |
 | created_at | timestamptz | NOT NULL, default now() | |
 | updated_at | timestamptz | NOT NULL, default now() | |
 
@@ -63,7 +80,8 @@ Supabase Authの `auth.users.id` と `salons.id` を一致させる。メール�
 
 ### staff（スタッフ）
 
-返信生成時に担当者を選択するためのテーブル。スタッフはログインしない（データとしてのみ存在する）。  
+返信生成時に担当者を選択するためのテーブル。  
+ログインユーザーに紐づくスタッフ本人の表現設定を持つほか、サロン内で返信名義として使うプロフィールも表す。  
 フェーズ1のMVPではDB直接挿入で初期データを投入する（管理UIはMVP外）。
 
 | カラム | 型 | 制約 | 備考 |
@@ -135,6 +153,7 @@ AIが生成したブログ原稿を保存する。フェーズ3から使用。
 ## 設計上の注意事項
 
 - 全テーブルにRLS（Row Level Security）を設定し，`salon_id` または `store_id` でデータを分離する
-- フェーズ1はSupabase Authでemail/passwordログイン。1サロン1アカウント（オーナーのみ）。テーブル構造はマルチテナント対応済みのため，スタッフ個別ログイン追加時の変更は最小限
+- フェーズ1は**最小MVPとして** Supabase Authでemail/passwordの個別ログインを導入する。ロールは `owner` / `staff` の2種類のみ
+- `salon_users` を起点にログインユーザーの所属サロンを判定し，同一サロン内のデータだけにアクセスさせる
 - `expires_at` による自動削除はSupabaseのpg_cronで定期実行する
 - `staff_name` は生成時点のスナップショット。スタッフレコード削除後も履歴カードに名前を表示するために保持する
