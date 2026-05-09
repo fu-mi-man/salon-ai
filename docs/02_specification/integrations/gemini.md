@@ -45,7 +45,7 @@ POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:ge
 上記の例文と同じ口調・文体で返信文を生成してください。
 ```
 
-`toneExamples` はスタッフに登録された過去の返信文（few-shot）。登録件数が3件未満の場合は存在する分だけ含める。
+`toneExamples` はスタッフに登録された過去の返信文（few-shot）。登録件数が3件未満の場合は存在する分だけ含める。0件の場合は `## 担当スタッフの返信例文` セクション全体を省略し、お客様の口コミセクションのみで生成する。
 
 ### リクエスト構造
 
