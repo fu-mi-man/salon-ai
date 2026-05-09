@@ -15,7 +15,7 @@
 例:
 
 - 環境構築: `docs/90_wiki/setup/`
-- GAS連携: `docs/02_specification/integrations/gas.md`
+- 外部連携: `docs/02_specification/integrations/`
 - 要件確認: `docs/01_requirements/`
 
 ## 正本
@@ -30,9 +30,7 @@
 ## このプロジェクトの前提
 
 - `web/` は Next.js アプリ
-- `gas/` は Google Apps Script プロジェクト
 - `web/` の開発・検証は Docker コンテナ内で行う
-- `gas/` の作業はホスト側で行う
 - パッケージマネージャーは `pnpm`
 
 ## セットアップ文書の扱い
@@ -48,7 +46,6 @@
 
 - `mise`: https://mise.jdx.dev/
 - `pnpm`: https://pnpm.io/
-- `clasp`: https://developers.google.com/apps-script/guides/clasp
 - `Next.js`: https://nextjs.org/docs
 - `Supabase CLI`: https://supabase.com/docs/reference/cli
 
@@ -56,7 +53,6 @@
 
 - `mise use` はツールのインストールと `mise.toml` への追記を同時に行う
 - `mise install` は `mise.toml` に書かれたツールをインストールする
-- `clasp` の基本導入は公式では `npm install -g @google/clasp` だが、このリポジトリで別方針を採るなら setup 文書側に理由を書く
 
 ## 作業時の判断ルール
 
@@ -71,6 +67,5 @@
 
 - HPBへの自動投稿は実装しない
 - 口コミ本文・投稿者情報はフェーズ1では保存しない
-- GASからSupabaseへの書き込みはNext.jsを経由しない
-- フェーズ1は認証なし
+- フェーズ1からSupabase Authを導入する（email/password・1サロン1アカウント）
 - Supabaseクライアントをそのまま使う

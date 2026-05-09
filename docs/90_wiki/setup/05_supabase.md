@@ -65,8 +65,8 @@ export async function createClient() {
 
 | 実装の選択 | 理由 |
 |-----------|------|
-| `createServerClient` のみ（`createBrowserClient` なし） | DBへの直接アクセスは Server Component のみ。フェーズ1は認証なしのため Client Component からのDB操作は不要 |
-| `setAll` を `try/catch` で囲む | Server Component からは Cookie を書き込めないが、Server Actions からは書き込める。フェーズ1.5で認証を追加する際にそのまま使えるよう標準パターンに従っておく |
+| `createServerClient` のみ（`createBrowserClient` なし） | DBへの直接アクセスは Server Component / Server Actions に集約する方針。Client Component から直接DBを触らない |
+| `setAll` を `try/catch` で囲む | Server Component からは Cookie を書き込めないが、Server Actions からは書き込める。フェーズ1のAuth導入からそのまま使えるよう標準パターンに従っておく |
 | `cookies()` を `await` する | Next.js 15 以降、`cookies()` は非同期 API |
 | `!` の代わりに `as string` | Biome の `noNonNullAssertion` ルールに従う |
 | `forEach` をブロック構文にする | Biome の `useIterableCallbackReturn` ルールに従う（コールバックが値を返してはいけない） |

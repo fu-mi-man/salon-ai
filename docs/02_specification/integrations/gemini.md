@@ -1,8 +1,8 @@
 # Gemini API 設計
 
-**用途**: 口コミ返信文の生成（フェーズ1）・ブログ原稿生成（フェーズ2）
-**モデル**: `gemini-2.0-flash`
-**呼び出し元**: GAS（UrlFetchApp）・Next.js Server Action（fetch）
+**用途**: 口コミ返信文の生成（フェーズ1）・ブログ原稿生成（フェーズ3）  
+**モデル**: `gemini-2.0-flash`  
+**呼び出し元**: Next.js Server Action（fetch）
 
 
 ## 口コミ返信生成
@@ -32,19 +32,20 @@ POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:ge
 ### User Prompt
 
 ```
-【トーン】{toneLabel}
-【口コミ内容】{reviewBody}
-【施術メニュー】{treatmentMenus}
-【評価】総合{ratingOverall}・雰囲気{ratingAtmosphere}・接客{ratingService}・技術{ratingSkill}・メニュー{ratingPrice}
+## 担当スタッフの返信例文
+{toneExamples[0]}
+---
+{toneExamples[1]}
+---
+{toneExamples[2]}
+
+## お客様の口コミ
+{reviewBody}
+
+上記の例文と同じ口調・文体で返信文を生成してください。
 ```
 
-### TonePreset
-
-| 値 | toneLabel |
-|---|---|
-| `polite` | 丁寧でフォーマルなトーンで |
-| `casual` | 親しみやすくカジュアルなトーンで |
-| `concise` | 簡潔にまとめて |
+`toneExamples` はスタッフに登録された過去の返信文（few-shot）。登録件数が3件未満の場合は存在する分だけ含める。0件の場合は `## 担当スタッフの返信例文` セクション全体を省略し、お客様の口コミセクションのみで生成する。
 
 ### リクエスト構造
 
@@ -75,22 +76,6 @@ const replyText = result.candidates[0].content.parts[0].text
 
 ## 呼び出し元別の実装
 
-### GAS（UrlFetchApp）
-
-```typescript
-const response = UrlFetchApp.fetch(url, {
-  method: 'post',
-  contentType: 'application/json',
-  payload: JSON.stringify(requestBody),
-  muteHttpExceptions: true
-})
-
-if (response.getResponseCode() !== 200) {
-  console.error('Gemini API error:', response.getContentText())
-  throw new Error('Gemini API failed')
-}
-```
-
 ### Next.js Server Action（fetch）
 
 ```typescript
@@ -118,9 +103,9 @@ if (!response.ok) {
 評価点数でネガティブを判定する方法もあるが、「総合5点だが文章はクレームに近い」ケースがある。AIに口コミ内容を読ませて判断させる方が精度が高い。
 
 
-## フェーズ2: ブログ原稿生成（Vision）
+## フェーズ3: ブログ原稿生成（Vision）
 
-※フェーズ2実装時に追記する
+※フェーズ3実装時に追記する
 
 画像（ヘアスタイル写真）を入力してブログ原稿を生成する。
 Gemini Vision APIを使用し、画像はbase64エンコードしてリクエストに含める。

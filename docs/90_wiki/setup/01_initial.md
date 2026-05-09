@@ -178,8 +178,6 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 cp web/.env.example web/.env.local
 ```
 
-**Secret keyはここに書かない。** GASのスクリプトプロパティのみで管理する。
-
 ## 7. テーブルを作成
 
 ```bash
@@ -204,47 +202,6 @@ docker compose up --build
 http://localhost:3000 にアクセスできれば完了。
 
 `3000` が埋まっていて `3001:3000` に変更した場合は、`http://localhost:3001` にアクセスする。
-
-## 9. gasディレクトリをセットアップ
-
-```bash
-mkdir -p gas/src
-cd gas
-pnpm init
-pnpm add -D @types/google-apps-script typescript @google/clasp
-```
-
-プロジェクトルートの `.gitignore` に、GAS の依存関係と生成物を追記する。
-
-```gitignore
-gas/node_modules/
-gas/dist/
-gas/.clasp.json
-```
-
-`gas/tsconfig.json` を作成する。
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2019",
-    "lib": ["ES2019"],
-    "module": "CommonJS",
-    "strict": true,
-    "outDir": "dist"
-  },
-  "include": ["src/**/*"]
-}
-```
-
-claspでGASプロジェクトを作成する（Googleアカウントでのログインが必要）。
-
-```bash
-pnpm exec clasp login
-pnpm exec clasp create --type standalone --title "salon-ai-gas"
-```
-
-`.clasp.json` が生成されることを確認する。
 
 ## 日常の開発フロー
 
