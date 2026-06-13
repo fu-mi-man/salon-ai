@@ -1,3 +1,4 @@
 .playwright-mcp/
 supabase/.branches/
 supabase/.temp/
+.DS_Store
