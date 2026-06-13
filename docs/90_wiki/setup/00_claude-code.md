@@ -1,23 +1,23 @@
 # Claude Code セットアップ
 
-プラグイン・スキル・MCPサーバーの導入手順。  
-いずれもプロジェクトスコープで管理し、Git経由でチームに共有される。  
-cloneした時点で使用可能な状態になる。  
+プラグイン・スキル・MCPサーバーの導入手順。
+権限・プラグインは各開発者のグローバル設定（`~/.claude/`）に置き、全プロジェクトで共有する。
+スキルと MCP は用途に応じて User（グローバル）か Project（`.mcp.json` などリポジトリに Git 共有）を選ぶ。
 
 前提: Claude Codeがインストール済みであること。
 
 ## 1. プラグイン
 
-リアルタイム型チェック・セキュリティ検出・コードレビューなどの機能を追加する。  
-インストールするとプロジェクトの `.claude/settings.json` に記録されGit管理される。  
+リアルタイム型チェック・セキュリティ検出・コードレビューなどの機能を追加する。
+グローバル（ユーザースコープ）にインストールすると `~/.claude/settings.json` に記録され、全プロジェクトで有効になる。
 
-Claude Code上で以下を実行する。  
+Claude Code上で以下を実行する。
 
-```
-/plugin install context7 --scope project
-/plugin install security-guidance --scope project
-/plugin install typescript-lsp --scope project
-/plugin install code-review --scope project
+```bash
+/plugin install context7 --scope user
+/plugin install security-guidance --scope user
+/plugin install typescript-lsp --scope user
+/plugin install code-review --scope user
 ```
 
 | プラグイン | 用途 |
@@ -30,8 +30,8 @@ Claude Code上で以下を実行する。
 ## 2. スキル
 
 Claude Codeにベストプラクティスを教えるスキルファイル。
-`.claude/skills/` にインストールされGit管理される。
-ホスト（プロジェクトルート）で実行する。
+インストール時にスコープを選ぶ。全プロジェクトで使うなら User（`~/.claude/skills/`）、そのプロジェクト限定なら Project（`.claude/skills/`）。
+ホスト（任意のディレクトリ）で実行する。
 
 ```bash
 pnpm dlx skills add vercel-labs/agent-skills -a claude-code
@@ -43,7 +43,7 @@ pnpm dlx skills add anthropics/skills --skill frontend-design --skill skill-crea
 
 | 項目 | 選択 |
 |---|---|
-| Installation scope | Project |
+| Installation scope | 用途に応じて User / Project |
 | find-skills | Yes |
 
 各コレクションで選択するスキル：
@@ -74,22 +74,37 @@ pnpm dlx skills add anthropics/skills --skill frontend-design --skill skill-crea
 動作確認する。
 
 ```bash
-ls .claude/skills/
+ls ~/.claude/skills/
 ```
 
 各スキルのディレクトリが表示されれば完了。
 
-スキルのアップデートはホストで実行する。
+Codex からも同じスキルを使えるよう、`~/.agents/skills` を `~/.claude/skills` への symlink にする。
 
 ```bash
-pnpm dlx skills update
+mkdir -p ~/.agents
+ln -s ../.claude/skills ~/.agents/skills
+```
+
+スキルのアップデートはホストで実行する。インストール時に選んだスコープに合わせる（グローバルに入れたなら `-g` を付ける）。
+
+```bash
+pnpm dlx skills update      # プロジェクトスコープのスキル
+pnpm dlx skills update -g   # グローバル（User スコープ）のスキル
 ```
 
 ## 3. MCPサーバー
+
+全プロジェクトで使う汎用MCP（ブラウザ操作の playwright など）はグローバル（ユーザースコープ）に登録する。
+
+```bash
+claude mcp add playwright -s user -- pnpm dlx @playwright/mcp@latest
+```
+
+特定プロジェクトでだけ使う場合や、「このプロジェクトでこのMCPを使う」という意図を残したい場合は、プロジェクトスコープで登録する。`.mcp.json` に記録されGit管理される。
 
 ```bash
 claude mcp add playwright -s project -- pnpm dlx @playwright/mcp@latest
 ```
 
-`-s project` でプロジェクトスコープに登録される。`.mcp.json` に記録されGit管理される。  
-既に `.mcp.json` が存在する場合（clone時など）は実行不要。
+このリポジトリでは playwright をグローバルに常備しつつ、意図表明として `.mcp.json`（プロジェクトスコープ）も残している。

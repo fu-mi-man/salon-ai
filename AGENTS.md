@@ -1,13 +1,13 @@
-# CLAUDE.md
+# AGENTS.md
 
-このファイルはClaude Codeがリポジトリで作業する際に自動的に読み込むプロジェクト指示書である。  
-Codex向けの自動読込ファイルは `AGENTS.md` とする。共通ルールは2ファイルで矛盾させない。
+このファイルはCodexがリポジトリで作業する際に自動的に読み込むプロジェクト指示書である。  
+Claude Code向けの自動読込ファイルは `CLAUDE.md` とする。共通ルールは2ファイルで矛盾させない。
 
 ## 先に読むもの
 
 作業開始時は以下の順で確認する。
 
-1. `CLAUDE.md`
+1. `AGENTS.md`
 2. `docs/90_wiki/dev-guide.md`
 3. 変更対象に対応する仕様・セットアップ文書
 4. 進捗確認やTODO整理が目的の場合は `docs/90_wiki/roadmap.md` と `docs/00_issues/`
@@ -23,7 +23,7 @@ Codex向けの自動読込ファイルは `AGENTS.md` とする。共通ルー�
 
 - 開発用ツールのバージョン正本は `mise.toml`
 - 詳細な環境構築手順の正本は `docs/90_wiki/setup/`
-- 日常的な開発ルールの正本は `CLAUDE.md` と `docs/90_wiki/dev-guide.md`
+- 日常的な開発ルールの正本は `AGENTS.md` と `docs/90_wiki/dev-guide.md`
 - 進捗管理の正本は `docs/90_wiki/roadmap.md` と `docs/00_issues/`
 - README は概要と入口を担う。詳細手順を肥大化させない
 
