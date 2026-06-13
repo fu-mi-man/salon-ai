@@ -1,8 +1,8 @@
 # Claude Code セットアップ
 
 プラグイン・スキル・MCPサーバーの導入手順。
-権限・プラグイン・スキルは各開発者のグローバル設定（`~/.claude/`）に置き、全プロジェクトで共有する。
-プロジェクトに含めて Git 共有するのは、そのプロジェクトで使う MCP（`.mcp.json`）のみとする。
+権限・プラグインは各開発者のグローバル設定（`~/.claude/`）に置き、全プロジェクトで共有する。
+スキルと MCP は用途に応じて User（グローバル）か Project（`.mcp.json` などリポジトリに Git 共有）を選ぶ。
 
 前提: Claude Codeがインストール済みであること。
 
@@ -13,7 +13,7 @@
 
 Claude Code上で以下を実行する。
 
-```
+```bash
 /plugin install context7 --scope user
 /plugin install security-guidance --scope user
 /plugin install typescript-lsp --scope user
