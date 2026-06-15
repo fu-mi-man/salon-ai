@@ -50,7 +50,7 @@ salons
 ### salon_users（ログインユーザー）
 
 Supabase Authの `auth.users` と1対1対応する。  
-フェーズ1は**最小MVPとして** `owner` / `staff` の2ロールのみを持つ。  
+`role` は `owner` / `staff` を取りうる（スキーマは将来の staff 対応を保持）。**フェーズ1の実装・運用は owner のみ**で，staff 個別ログインは後続フェーズ。
 同一サロン内のどのスタッフ設定を本人のものとして扱うかを `staff_id` で紐づける。
 
 | カラム | 型 | 制約 | 備考 |
@@ -153,7 +153,7 @@ AIが生成したブログ原稿を保存する。フェーズ3から使用。
 ## 設計上の注意事項
 
 - 全テーブルにRLS（Row Level Security）を設定し，`salon_id` または `store_id` でデータを分離する
-- フェーズ1は**最小MVPとして** Supabase Authでemail/passwordの個別ログインを導入する。ロールは `owner` / `staff` の2種類のみ
+- フェーズ1は**最小MVPとして** Supabase Authでemail/passwordの個別ログインを導入する。`role` は `owner` / `staff` の2種類をスキーマで保持するが，実装・運用は owner のみ（staff 個別ログインは後続フェーズ）
 - `salon_users` を起点にログインユーザーの所属サロンを判定し，同一サロン内のデータだけにアクセスさせる
 - `expires_at` による自動削除はSupabaseのpg_cronで定期実行する
 - `staff_name` は生成時点のスナップショット。スタッフレコード削除後も履歴カードに名前を表示するために保持する

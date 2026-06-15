@@ -10,7 +10,14 @@ Claude Code向けの自動読込ファイルは `CLAUDE.md` とする。共通�
 1. `AGENTS.md`
 2. `docs/90_wiki/dev-guide.md`
 3. 変更対象に対応する仕様・セットアップ文書
-4. 進捗確認やTODO整理が目的の場合は `docs/90_wiki/roadmap.md` と `docs/00_issues/`
+4. 進捗確認やTODO整理が目的の場合は `docs/90_wiki/roadmap.md`（戦略）と `docs/00_issues/README.md`（実行トラッカー）
+
+## 作業再開時のプロトコル
+
+IMPORTANT: フェーズ1の実装に着手する前は、毎回まず `docs/00_issues/README.md` 冒頭の「再開時 同期チェック」を実行する。トラッカーと現実（roadmap・仕様・GitHub・コード）にズレがあれば、トラッカーまたは該当ドキュメントを先に直してから実装に入る。
+
+- 実装1件（1 issue）が完了するたびに、`docs/00_issues/README.md` の「状態」列を更新し、対応する GitHub issue を閉じる。
+- このプロジェクトは数ヶ月空くことがある。ズレ前提でチェックしてから動く。
 
 例:
 
@@ -24,7 +31,7 @@ Claude Code向けの自動読込ファイルは `CLAUDE.md` とする。共通�
 - 開発用ツールのバージョン正本は `mise.toml`
 - 詳細な環境構築手順の正本は `docs/90_wiki/setup/`
 - 日常的な開発ルールの正本は `AGENTS.md` と `docs/90_wiki/dev-guide.md`
-- 進捗管理の正本は `docs/90_wiki/roadmap.md` と `docs/00_issues/`
+- 進捗管理の正本は，戦略が `docs/90_wiki/roadmap.md`，実行詳細（issue一覧・受け入れ基準・進捗）が `docs/00_issues/README.md`
 - README は概要と入口を担う。詳細手順を肥大化させない
 
 `README.md` と `docs/90_wiki/setup/` の記述が衝突した場合、セットアップ手順は `docs/90_wiki/setup/` と `mise.toml` を優先する。
@@ -72,5 +79,5 @@ docker compose exec web pnpm test
 
 - **HPBへの自動投稿は実装しない**（利用規約【2】違反のため）
 - **口コミ本文・投稿者情報はフェーズ1では保存しない**（個人情報リスク回避）
-- **フェーズ1からSupabase Authを導入する**（email/password・owner / staff の個別ログイン・1サロン内に複数アカウント可）
+- **フェーズ1からSupabase Authを導入する**（email/password。フェーズ1は owner ログインのみ実装し，staff 個別ログインは後続フェーズ。1サロン内に複数アカウント可の設計は維持）
 - **Supabaseクライアントをそのまま使う**（DrizzleやPrismaは導入しない）

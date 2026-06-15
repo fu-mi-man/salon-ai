@@ -37,7 +37,7 @@ Next.jsのAPI Routeで実装。自前サーバーは持たない。
 
 | フェーズ | 対応 |
 |---|---|
-| フェーズ1〜 | Supabase Auth（メール+パスワード、owner / staff の個別ログイン） |
+| フェーズ1〜 | Supabase Auth（メール+パスワード、owner ログイン。staff 個別ログインは後続フェーズ） |
 
 ### データベース
 

@@ -6,7 +6,7 @@
 graph TB
   subgraph salon["サロン側"]
     SB["サロンボード\n（HPB管理画面）"]
-    US["ログインユーザー\n（owner / staff）"]
+    US["ログインユーザー\n（owner）"]
   end
 
   subgraph cloud["開発者管理（クラウド）"]
@@ -94,7 +94,7 @@ sequenceDiagram
 graph LR
   subgraph ph1["フェーズ1（現在）"]
     A1["Next.js\nコピペUI・最小MVP"]
-    A2["Supabase Auth\nowner / staff 個別ログイン"]
+    A2["Supabase Auth\nowner ログイン（staff は後続）"]
     A3["Supabase DB\n返信履歴・スタッフ・トーン例文・salon_users"]
     A4["Gemini API\nfew-shot 返信文生成"]
   end
