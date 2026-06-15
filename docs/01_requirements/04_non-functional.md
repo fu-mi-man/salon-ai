@@ -10,7 +10,7 @@
 
 Supabase Authのemail/password認証を使用する。
 
-- フェーズ1は**最小MVPとして** owner / staff の個別ログインのみ実装する
+- フェーズ1は**最小MVPとして** owner ログインのみ実装する（staff 個別ログインは後続フェーズ）
 - 1サロン内に複数アカウントを持てる
 - サインアップ画面・招待画面は提供しない。初期アカウントは開発者が発行する
 - ログイン後の遷移先は `/dashboard` に固定する
@@ -23,21 +23,26 @@ Supabase Authのemail/password認証を使用する。
 - 未認証で保護ページ（`/dashboard` など）にアクセスした場合は `/login` にリダイレクトする
 - ログイン済みで `/login` にアクセスした場合は `/dashboard` にリダイレクトする
 - `owner` は同一サロン内の全スタッフ設定・返信履歴を閲覧／編集できる
-- `staff` は同一サロン内の返信履歴を利用でき，自分に紐づく表現設定のみ編集できる
+- `staff` は同一サロン内の返信履歴を利用でき，自分に紐づく表現設定のみ編集できる（**この認可は設計として保持するが、staff 個別ログインは後続フェーズ。フェーズ1では実装せず owner のみ**）
 
 ### RLS（Row Level Security）
 
 全テーブルにRLSを設定し、サロンIDでデータを分離する。  
 フェーズ1からSupabase Authを導入するため、RLSポリシーもフェーズ1から有効化する。
 
+`auth.uid()` は `salon_users.user_id` に一致する。サロンの判定は `salon_users` を起点に `salon_id` を解決する（`salon_id = auth.uid()` ではない）。
+
 ```sql
--- review_replies の例
+-- review_replies の例（salon_users を起点にサロンを解決する）
 alter table review_replies enable row level security;
 
 create policy "サロンは自分の返信文のみ参照できる"
   on review_replies for select
   using (store_id in (
-    select id from stores where salon_id = auth.uid()
+    select s.id
+    from stores s
+    join salon_users su on su.salon_id = s.salon_id
+    where su.user_id = auth.uid()
   ));
 ```
 

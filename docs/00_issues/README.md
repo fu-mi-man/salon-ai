@@ -46,7 +46,7 @@ gh issue list --milestone "Step 2" --state all   # Milestone 単位でも確認�
 Step0 全画面UIプロトタイプ（静的・本物ルート・インフラ不要）
    └→ Step1 ダッシュボードの操作（ダミー状態）
           └→ Step2 認証 + 全スキーマ一括 + 早期デプロイ + E2E基盤
-                 ├→ Step3 スタッフ・例文管理
+                 ├→ Step3 スタッフ・例文（DB投入＋連携）
                  └→ Step4 履歴の永続化
                         └→ Step5 Gemini生成（要 Step3 例文 / Step4 保存先）→【E2E②】
                                └→ Step6 AI修正（Step1のダミーUIを本実装に差し替え）
@@ -84,7 +84,8 @@ Step0 全画面UIプロトタイプ（静的・本物ルート・インフラ不
 - [ ] 新仕様のダミーデータ（`status`/`tone_preset` なし、担当スタッフ名あり）を複数件描画する
 - [ ] タブレット幅（`md:` 768px〜）で 左:生成エリア / 右:履歴 の2カラム、スマホ幅は縦並び
 - [ ] 履歴0件の空状態（「まだ生成した返信文はありません」）の見た目も用意する
-- [ ] 返信カードを `components/features/` のコンポーネントとして抽出する
+- [ ] 返信カードを `components/features/` のコンポーネントとして抽出する（空の `app/dashboard/_components/` は使わず規約に合わせる）
+- [ ] 旧 `dashboard/page.tsx`（status/tone_preset/タブUI）を新仕様で置き換える
 - [ ] 操作（コピー・編集・削除等）の振る舞いは持たせない（見た目のみ）
 
 **0-3 受け入れ基準**
@@ -143,68 +144,77 @@ Step0 で作ったダッシュボードの静的UIに振る舞いを乗せる。
 ## Step 2 — 認証・スキーマ基盤・早期デプロイ
 
 `docs/02_specification/screens/02_login.md`・`03_reset-password.md`、`docs/01_requirements/03_data.md`・`04_non-functional.md` に従う。
-**この Step で全テーブルを一括作成し、認証が通った時点で一度本番にデプロイする（ウォーキングスケルトン）。**
+**この Step で全テーブルを一括作成し、認証が通った時点で一度本番にデプロイする（ウォーキングスケルトン）。** フェーズ1は **owner 単一運用**（staff 個別ログインは後続フェーズ）。
 
 | No. | タイトル | 状態 | GH# | 前提 | ラベル |
 |---|---|---|---|---|---|
 | 2-1 | Supabase CLI を導入しローカル開発環境を整える | ⬜ |  | なし | infra |
 | 2-2 | 全テーブルを `03_data.md` 通りに一括作成し RLS と型定義を整える | ⬜ |  | 2-1 | infra |
-| 2-3 | ログイン画面 `/login` を実装する | ⬜ |  | 2-2 | enhancement |
-| 2-4 | パスワードリセット画面 `/reset-password` を実装する | ⬜ |  | 2-2 | enhancement |
-| 2-5 | 認証 middleware でリダイレクト制御を実装する | ⬜ |  | 2-2 | enhancement |
-| 2-6 | ダッシュボードにログアウトボタンを実装する | ⬜ |  | 2-3,2-5 | enhancement |
-| 2-7 | Vercel に早期デプロイし本番環境変数を設定する | ⬜ |  | 2-3,2-5,2-6 | infra |
-| 2-8 | Playwright のE2Eテスト基盤をセットアップする | ⬜ |  | 2-1 | test |
-| 2-9 | 【E2E①】認証フローのE2Eテストを追加する | ⬜ |  | 2-6,2-8 | test |
+| 2-3 | 初期 seed（サロン1・店舗1・owner1）を用意する | ⬜ |  | 2-2 | infra |
+| 2-4 | ログイン画面 `/login` を実装する | ⬜ |  | 2-2,2-3 | enhancement |
+| 2-5 | パスワードリセット画面 `/reset-password` を実装する | ⬜ |  | 2-2 | enhancement |
+| 2-6 | 認証 middleware でリダイレクト制御を実装する | ⬜ |  | 2-2 | enhancement |
+| 2-7 | ダッシュボードにログアウトボタンを実装する | ⬜ |  | 2-4,2-6 | enhancement |
+| 2-8 | Vercel に早期デプロイし本番環境変数を設定する | ⬜ |  | 2-4,2-6,2-7 | infra |
+| 2-9 | Playwright のE2Eテスト基盤をセットアップする | ⬜ |  | 2-1 | test |
+| 2-10 | 【E2E①】認証フローのE2Eテストを追加する | ⬜ |  | 2-7,2-9 | test |
 
 **2-1 受け入れ基準**
 - [ ] `web` に `supabase` CLI を devDependency として追加する（`.claude/rules/pnpm.md` の手順）
 - [ ] `docker compose exec web pnpm supabase db reset` 相当でローカルDBを初期化できる
 - [ ] `docker compose exec web pnpm supabase gen types typescript --local > src/lib/supabase/database.types.ts` が通る
-- [ ] `web/.env.local.example` に `NEXT_PUBLIC_SUPABASE_URL=` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` を記載する
+- [ ] `web/.env.example`（既存）に `NEXT_PUBLIC_SUPABASE_URL=` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` が揃っていることを確認する
 - [ ] セットアップ手順を `docs/90_wiki/setup/05_supabase.md` に追記・整合させる
 
 **2-2 受け入れ基準**
 - [ ] 旧マイグレーション（`tone_preset`/`status`/`email`/`gmail_address` 等の旧仕様）を破棄し新仕様で作り直す
+- [ ] 単一の CREATE マイグレーションとして書き、開発中は本ファイルを編集して `db reset` で作り直す（ALTER を積まない。`docs/90_wiki/dev-guide.md` のマイグレーション方針）
 - [ ] `salons` / `salon_users` / `stores` / `staff` / `staff_tone_examples` / `review_replies` を `03_data.md` の定義通り作成する
 - [ ] `salon_users.staff_id` は `uuid NULL UNIQUE` で、`staff.id` への FK を**この時点で**付与する（後付けにしない）
 - [ ] `review_replies` は `staff_id`（NULL・FK）/ `staff_name`（NOT NULL スナップショット）/ `expires_at` を持つ
-- [ ] 全テーブルに RLS を有効化し、`salon_users` を起点に同一サロンのデータのみ操作可能にする（SELECT/INSERT/UPDATE/DELETE）
-- [ ] `owner` は同一サロン全データ操作可、`staff` は返信履歴の操作と自分の `salon_users` のみ更新可
+- [ ] 全テーブルに RLS を有効化し、`salon_users` を起点に同一サロンのデータのみ操作可能にする（SELECT/INSERT/UPDATE/DELETE）。RLS は `salon_id = auth.uid()` ではなく、`salon_users.user_id = auth.uid()` から `salon_id` を解決する
+- [ ] フェーズ1は owner 単一運用のため role による権限差は設けない（staff 個別ログインは後続フェーズで RLS 差を追加）
+- [ ] 全テーブルに `updated_at` 自動更新トリガを設定する（4-4 の `expires_at` 再計算が依存）
 - [ ] `database.types.ts` を再生成する
 - [ ] `typecheck` / `lint` が通る
 - [ ] （補足）`expires_at` の再計算トリガと pg_cron 削除ジョブは 4-4 で設定する。本 issue は列の用意まで
 
 **2-3 受け入れ基準**
+- [ ] ローカル開発用 seed（`supabase/seed.sql` 等）に サロン1件・店舗1件・owner ユーザー1件（`salon_users` role=owner / staff_id NULL）を用意する
+- [ ] `db reset` で seed が流れ、ログイン可能な owner アカウントができる
+- [ ] スタッフ・例文の seed は 3-1 で追加する（本 issue は認証検証に必要な最小限）
+
+**2-4 受け入れ基準**
 - [ ] `/login` にメール・パスワード入力フォームが表示される
-- [ ] 「ログイン」押下で email/password 認証を実行する
-- [ ] 認証成功時に `/dashboard` へ遷移する
+- [ ] 「ログイン」押下で email/password 認証を Server Action で実行する（`setup/05_supabase.md` の方針通り browser client は使わず `createServerClient` に集約）
+- [ ] 認証成功時に `/dashboard` へ遷移する（遷移の最終確認は 2-6 の middleware と合わせて行う）
 - [ ] 認証失敗時に「メールアドレスまたはパスワードが正しくありません」を表示する
 - [ ] 「パスワードを忘れた場合」リンクから `/reset-password` に遷移する
 - [ ] 送信中はログインボタンがローディング状態になる
 - [ ] 空・形式不正のバリデーションエラーを表示する
 
-**2-4 受け入れ基準**
+**2-5 受け入れ基準**
 - [ ] メール送信フォームで再設定メールを送信できる
 - [ ] 送信成功時に「再設定メールを送信しました」を表示する（メールの存在有無は明示しない）
+- [ ] URL の recovery トークンの有無で「メール送信」段階と「新パスワード設定」段階を判定する
 - [ ] メール内リンクから戻ったユーザーに新パスワード入力フォームを表示する
 - [ ] 確認用パスワードが一致しない場合はエラー表示する
 - [ ] 再設定完了後に `/login` へ遷移する
 - [ ] トークン無効時に「リンクの有効期限が切れています」エラーを表示する
 
-**2-5 受け入れ基準**
+**2-6 受け入れ基準**
 - [ ] 未認証で `/dashboard` 等の保護ページを開くと `/login` にリダイレクトされる
 - [ ] 認証済みで `/login` を開くと `/dashboard` にリダイレクトされる
 - [ ] ログアウト後は `/login` に戻る
-- [ ] `@supabase/ssr` のヘルパーに沿った middleware 実装になっている
+- [ ] `@supabase/ssr` のヘルパーに沿い、middleware で `getUser()` を呼んでセッション Cookie を更新する（Next.js 16 での典型バグを防ぐ）
 
-**2-6 受け入れ基準**
+**2-7 受け入れ基準**
 - [ ] ダッシュボードのヘッダー右上にログアウトボタンが表示される
 - [ ] 押下で `signOut` が実行される（Server Action 経由）
 - [ ] サインアウト後に `/login` へ遷移する
 - [ ] セッション Cookie が確実にクリアされる
 
-**2-7 受け入れ基準**
+**2-8 受け入れ基準**
 - [ ] Vercel に Next.js アプリをデプロイする
 - [ ] GitHub 連携で main push により自動デプロイされる
 - [ ] PR ごとにプレビュー環境が発行される
@@ -212,13 +222,13 @@ Step0 で作ったダッシュボードの静的UIに振る舞いを乗せる。
 - [ ] 本番環境変数（`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`）を設定する
 - [ ] 本番URLでログイン → `/dashboard` → ログアウトまで動作する
 
-**2-8 受け入れ基準**
+**2-9 受け入れ基準**
 - [ ] Playwright を導入する（`.claude/rules/pnpm.md` の手順）
 - [ ] `tests/e2e/` を作成し疎通用スモークテスト1本が通る
 - [ ] E2E 実行コマンドを `package.json` に追加する
 - [ ] `docs/90_wiki/testing.md` の E2E 配置（`tests/e2e/`）と一致させる
 
-**2-9 受け入れ基準**
+**2-10 受け入れ基準**
 - [ ] 未認証で `/dashboard` を開くと `/login` にリダイレクトされる E2E が通る
 - [ ] 正しい email/password でログインすると `/dashboard` に遷移する E2E が通る
 - [ ] 誤った認証情報でエラーメッセージが表示される E2E が通る
@@ -226,40 +236,25 @@ Step0 で作ったダッシュボードの静的UIに振る舞いを乗せる。
 
 ---
 
-## Step 3 — スタッフ・例文管理
+## Step 3 — スタッフ・例文（DB投入＋ダッシュボード連携）
 
-スキーマは 2-2 で作成済み。本 Step は UI と Server Action のみ。`docs/01_requirements/03_data.md`・`04_non-functional.md` 参照。
+スタッフ・返信例文は**管理UIを作らず DB 直接投入する**（`docs/01_requirements/03_data.md` の「管理UIはMVP外・DB直接挿入」方針通り）。本 Step は seed 投入とダッシュボードのスタッフ選択の DB 連携のみ。
 
 | No. | タイトル | 状態 | GH# | 前提 | ラベル |
 |---|---|---|---|---|---|
-| 3-1 | スタッフ一覧画面でスタッフをCRUDする | ⬜ |  | Step2 | enhancement |
-| 3-2 | スタッフごとの返信例文をCRUD・並べ替えする | ⬜ |  | 3-1 | enhancement |
-| 3-3 | ダッシュボードのスタッフ選択をDB連携に切り替える | ⬜ |  | 3-1,0-2 | enhancement |
-| 3-4 | staffロールのアクセス制限をUIに反映する | ⬜ |  | 3-1,3-2 | enhancement |
+| 3-1 | スタッフ・返信例文をDB投入する（管理UIは作らない） | ⬜ |  | 2-2 | infra |
+| 3-2 | ダッシュボードのスタッフ選択をDB連携に切り替える | ⬜ |  | 3-1,0-2,2-6 | enhancement |
 
 **3-1 受け入れ基準**
-- [ ] スタッフ一覧ページ（例: `/staff`）が表示される
-- [ ] 追加フォームから新規スタッフを登録できる
-- [ ] 既存スタッフの名前を編集できる
-- [ ] スタッフを削除できる（確認ダイアログあり）
-- [ ] owner のみ追加・編集・削除を実行できる（RLS 違反時の UI 挙動を含む）
+- [ ] `staff`・`staff_tone_examples` の投入 SQL / seed を用意する（管理UIは作らない）
+- [ ] 返信例文は `order` 順に並ぶよう投入する
+- [ ] `db reset` で staff・例文が入る
+- [ ] 投入手順は 7-1（初期アカウント手順）に集約する
 
 **3-2 受け入れ基準**
-- [ ] スタッフ詳細でそのスタッフの返信例文一覧が表示される
-- [ ] 返信例文を新規追加できる
-- [ ] 返信例文を削除できる
-- [ ] 並べ替えができ `order` カラムに反映される
-- [ ] 件数上限は設けない
-
-**3-3 受け入れ基準**
-- [ ] スタッフ選択セレクトに、ログインユーザーのサロンのスタッフ一覧が表示される
+- [ ] スタッフ選択セレクトに、ログインユーザーのサロンのスタッフ一覧が表示される（Server Component で取得）
 - [ ] スタッフ未登録時は「スタッフを登録してください」相当の空状態を表示する
-- [ ] Server Component でスタッフ一覧を取得する
-
-**3-4 受け入れ基準**
-- [ ] `staff` ログイン時、自分以外のスタッフの編集・削除ボタンが表示されない（または disabled）
-- [ ] `staff` ログイン時、自分以外の返信例文を編集・削除しようとすると RLS で拒否される
-- [ ] `owner` ログイン時は全スタッフを編集できる
+- [ ] 0-2 のダミーセレクトを DB データに置き換える
 
 ---
 
@@ -284,15 +279,18 @@ Step0 で作ったダッシュボードの静的UIに振る舞いを乗せる。
 - [ ] カード削除で `review_replies` のレコードが削除される
 - [ ] 削除後に表示が更新される（`revalidatePath` 等）
 - [ ] 確認ダイアログ後に削除が走る
+- [ ] 処理中はボタンを非活性にし二重送信を防ぐ
 - [ ] RLS で他サロンのレコードを削除できない
 
 **4-3 受け入れ基準**
 - [ ] 編集モードの「保存」で `review_replies.body` と `updated_at` が更新される
 - [ ] 保存後に表示が更新される
 - [ ] 空文字不可のバリデーションをサーバーサイドで Zod により行う
+- [ ] 処理中はボタンを非活性にし二重送信を防ぐ
 - [ ] RLS で他サロンのレコードを更新できない
 
 **4-4 受け入れ基準**
+- [ ] 本番実データ投入前のため、トリガ・cron は ALTER で積まず schema マイグレーションに統合して `db reset` で再現する（`docs/90_wiki/dev-guide.md` のマイグレーション方針）
 - [ ] Supabase の pg_cron 拡張を有効化する
 - [ ] `expires_at < now()` のレコードを定期削除するジョブを登録する
 - [ ] `updated_at` 更新時に `expires_at = updated_at + interval '30 days'` を再計算するトリガを追加する（DB側で一元管理）
@@ -308,17 +306,17 @@ Step0 で作ったダッシュボードの静的UIに振る舞いを乗せる。
 | No. | タイトル | 状態 | GH# | 前提 | ラベル |
 |---|---|---|---|---|---|
 | 5-1 | Gemini APIクライアント（サーバー専用）を実装する | ⬜ |  | Step2 | enhancement |
-| 5-2 | プロンプト組立ロジックを実装し単体テストを書く | ⬜ |  | 5-1,Step3 | enhancement |
-| 5-3 | 生成Server Actionを実装し履歴に保存する | ⬜ |  | 5-2,Step4 | enhancement |
+| 5-2 | プロンプト組立ロジックを実装し単体テストを書く | ⬜ |  | 5-1,3-1 | enhancement |
+| 5-3 | 生成Server Actionを実装し履歴に保存する | ⬜ |  | 5-2,4-1 | enhancement |
 | 5-4 | 生成中ローディングと失敗エラーUIを実装する | ⬜ |  | 5-3 | enhancement |
-| 5-5 | 【E2E②】生成happy pathのE2Eテストを追加する | ⬜ |  | 5-4,2-8 | test |
+| 5-5 | 【E2E②】生成happy pathのE2Eテストを追加する | ⬜ |  | 5-4,2-9 | test |
 
 **5-1 受け入れ基準**
 - [ ] サーバー専用モジュールとして実装する（クライアントに APIキーが露出しない）
 - [ ] 環境変数 `GEMINI_API_KEY` から APIキーを取得する
 - [ ] `system_instruction` / `contents` / `generationConfig` を受け取りレスポンスからテキストを抽出する
-- [ ] HTTPエラー・空レスポンス時に明示的なエラーを投げる
-- [ ] `.env.local.example` に `GEMINI_API_KEY=` を追記する
+- [ ] HTTPエラー・空レスポンス時に明示的なエラーを投げ、サーバーログにエラー詳細を出す（監視は Vercel ログでよい）
+- [ ] `.env.example` に `GEMINI_API_KEY=` を追記する
 
 **5-2 受け入れ基準**
 - [ ] System Prompt は仕様書の文言そのまま使う
@@ -382,17 +380,17 @@ Step1（1-3）のダミーUIを本実装に差し替える。`docs/02_specificat
 | 7-2 | 本番動作確認（実機チェックリスト）を行う | ⬜ |  | 全Step | test |
 
 **7-1 受け入れ基準**
-- [ ] Supabase Auth でユーザー（email/password）を発行する手順を記載する
-- [ ] `salons` / `stores` / `salon_users` / `staff` / `staff_tone_examples` を作成・投入する SQL 例を記載する
-- [ ] `salon_users` で `auth.users.id` と `salons.id` を紐づける手順（`owner` は `staff_id` NULL、`staff` は対応 `staff.id` を必ず紐づけ）を記載する
-- [ ] staff ロールは staff レコード作成 → `salon_users.staff_id` 紐づけの順で発行する旨を記載する
+- [ ] Supabase Auth で owner ユーザー（email/password）を発行する手順を記載する
+- [ ] `salons` / `stores` / `salon_users`（role=owner / staff_id NULL）を作成・紐づける SQL 例を記載する
+- [ ] `staff` / `staff_tone_examples` を投入する SQL 例を記載する（3-1 の seed と整合させる）
 - [ ] 初回パスワード再設定（リセットメール経由）の運用フローを記載する
 - [ ] `docs/90_wiki/setup/07_initial_account.md`（新規）に置く
+- [ ] （補足）staff 個別ログインは後続フェーズ。本手順は owner のみを対象とする
 
 **7-2 受け入れ基準**
 - [ ] 本番URLでログイン・ログアウトができる
 - [ ] パスワードリセットメールが届く
-- [ ] スタッフ・例文を CRUD できる
+- [ ] スタッフ・例文が DB に投入されている（管理UIは作らない）
 - [ ] ダッシュボードで生成 → 履歴に反映 → コピー が動作する
 - [ ] 編集モードで AI修正 → 保存 が動作する
 - [ ] 別サロンのデータが見えない（RLS が機能している）
@@ -406,8 +404,9 @@ Step1（1-3）のダミーUIを本実装に差し替える。`docs/02_specificat
 旧 `docs/00_issues/stepN_*.md` ドラフトは方針見直し前に書かれていた。本トラッカーはそれらを統合し、以下を反映している。
 
 1. **スキーマは Step2（2-2）で一括作成**：旧ドラフトはテーブル作成を Step2/3/4 に分散し、`salon_users.staff_id` を「NULL で作って後で FK 追加」していた。本計画では一括作成＋FK＋RLS とし、段取り依存の事故を排除した。
-2. **デプロイ前倒し（2-7）**：旧ドラフトは Step7 で初めてデプロイ。本計画では認証スケルトン完成時に早期デプロイし、以降は継続デリバリ。Step7 は初期アカウント発行・本番確認に縮小。
-3. **前提issueの追加**：`/` テンプレ掃除（0-1）・Supabase CLI 導入（2-1）・Playwright 基盤（2-8）を新設（旧ドラフトは存在しない基盤を前提にしていた）。
-4. **E2E は2点に集約**：①認証フロー（2-9）と ②生成happy path（5-5）。旧ドラフトのように各 Step には置かない。
+2. **デプロイ前倒し（2-8）**：旧ドラフトは Step7 で初めてデプロイ。本計画では認証スケルトン完成時に早期デプロイし、以降は継続デリバリ。Step7 は初期アカウント発行・本番確認に縮小。
+3. **前提issueの追加**：`/` テンプレ掃除（0-1）・Supabase CLI 導入（2-1）・初期 seed（2-3）・Playwright 基盤（2-9）を新設（旧ドラフトは存在しない基盤を前提にしていた）。
+4. **E2E は2点に集約**：①認証フロー（2-10）と ②生成happy path（5-5）。旧ドラフトのように各 Step には置かない。
 5. **正本の一本化**：旧 `stepN_*.md`（7本）は本ファイルに統合済み。詳細はすべて本ファイルを参照する。
 6. **Step0 を新設（全画面UIプロトタイプ）**：本物のルート（`/dashboard`・`/login`・`/reset-password`）に shadcn/Tailwind で静的UIを先に作り、以降の Step が振る舞い・ロジックを乗せる。捨てUIにしないため本番除外は不要。旧 Step1（UI一括）は Step0（静的）＋Step1（操作）に分割した。コンポーネントは中庸（shadcnプリミティブ＋返信カードのみ抽出）。
+7. **owner 単一運用に絞る（staff 個別ログインは後続）**：フェーズ1は owner ログインのみ実装。RLS の role 権限差・staff ロールのUI出し分け・staff 発行手順は作らない。スタッフ・例文は管理UIを作らず DB 直接投入する（`03_data.md` の方針通り）。これにより Step3 はスタッフCRUD UI を廃し「seed 投入＋選択連携」に縮小。Step2 に初期 seed（2-3）を追加し、デプロイ後・生成系の検証を可能にした。RLS は `salon_users.user_id = auth.uid()` 起点（`04_non-functional.md` の旧例の誤りを修正）。

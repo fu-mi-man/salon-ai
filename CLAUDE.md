@@ -79,5 +79,5 @@ docker compose exec web pnpm test
 
 - **HPBへの自動投稿は実装しない**（利用規約【2】違反のため）
 - **口コミ本文・投稿者情報はフェーズ1では保存しない**（個人情報リスク回避）
-- **フェーズ1からSupabase Authを導入する**（email/password・owner / staff の個別ログイン・1サロン内に複数アカウント可）
+- **フェーズ1からSupabase Authを導入する**（email/password。フェーズ1は owner ログインのみ実装し，staff 個別ログインは後続フェーズ。1サロン内に複数アカウント可の設計は維持）
 - **Supabaseクライアントをそのまま使う**（DrizzleやPrismaは導入しない）
