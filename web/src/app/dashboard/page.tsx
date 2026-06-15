@@ -2,6 +2,7 @@
 
 import { Check, CheckCircle2, Copy, Pencil, RefreshCw, Save, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { SiteHeader } from "@/components/features/site-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -456,9 +457,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-white text-foreground">
-      <header className="border-zinc-200 border-b bg-white px-4 py-3">
-        <h1 className="font-semibold text-base">salon-ai</h1>
-      </header>
+      <SiteHeader />
 
       <main className="mx-auto max-w-3xl px-4 py-5">
         <Tabs className="w-full" onValueChange={(v) => setTab(v as TabKey)} value={tab}>
