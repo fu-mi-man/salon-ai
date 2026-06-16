@@ -10,13 +10,16 @@ Claude Code向けの自動読込ファイルは `CLAUDE.md` とする。共通�
 1. `AGENTS.md`
 2. `docs/90_wiki/dev-guide.md`
 3. 変更対象に対応する仕様・セットアップ文書
-4. 進捗確認やTODO整理が目的の場合は `docs/90_wiki/roadmap.md`（戦略）と `docs/00_issues/README.md`（実行トラッカー）
+4. 進捗確認やTODO整理が目的の場合は GitHub（issues・Project #3）で状態と受け入れ基準を確認する。戦略は `docs/90_wiki/roadmap.md`、Step 間の依存と構成の意図は `docs/00_issues/README.md` を見る
 
 ## 作業再開時のプロトコル
 
-IMPORTANT: フェーズ1の実装に着手する前は、毎回まず `docs/00_issues/README.md` 冒頭の「再開時 同期チェック」を実行する。トラッカーと現実（roadmap・仕様・GitHub・コード）にズレがあれば、トラッカーまたは該当ドキュメントを先に直してから実装に入る。
+IMPORTANT: フェーズ1の実装に着手する前は、毎回まず GitHub（issues・Project #3）と現実（roadmap・仕様・コード）にズレがないか確認し、ズレがあれば該当 issue またはドキュメントを先に直してから実装に入る。
 
-- 実装1件（1 issue）が完了するたびに、`docs/00_issues/README.md` の「状態」列を更新し、対応する GitHub issue を閉じる。
+- `gh issue list --state all --milestone "Step N"` で対象 Step の issue と状態を確認する。受け入れ基準は各 issue の本文にある。
+- closed の issue が実際にコードへ反映されているか主要ファイルをスポット確認する。
+- `git log -- docs/` の直近変更がコードに反映済みか確認する。未反映なら新規 issue 化を検討する。
+- 実装1件（1 issue）が完了するたびに対応する GitHub issue を閉じる（PR に `Closes #NN` を付ければマージで自動クローズされ、Project ボードも自動で Done になる）。状態を Markdown で二重管理しない。
 - このプロジェクトは数ヶ月空くことがある。ズレ前提でチェックしてから動く。
 
 例:
@@ -31,7 +34,7 @@ IMPORTANT: フェーズ1の実装に着手する前は、毎回まず `docs/00_i
 - 開発用ツールのバージョン正本は `mise.toml`
 - 詳細な環境構築手順の正本は `docs/90_wiki/setup/`
 - 日常的な開発ルールの正本は `AGENTS.md` と `docs/90_wiki/dev-guide.md`
-- 進捗管理の正本は，戦略が `docs/90_wiki/roadmap.md`，実行詳細（issue一覧・受け入れ基準・進捗）が `docs/00_issues/README.md`
+- 進捗管理の正本は，状態・issue一覧・受け入れ基準が GitHub（issues・Project #3），戦略が `docs/90_wiki/roadmap.md`，Step 間の依存と構成の意図が `docs/00_issues/README.md`
 - README は概要と入口を担う。詳細手順を肥大化させない
 
 `README.md` と `docs/90_wiki/setup/` の記述が衝突した場合、セットアップ手順は `docs/90_wiki/setup/` と `mise.toml` を優先する。
