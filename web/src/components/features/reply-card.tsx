@@ -46,11 +46,16 @@ export function ReplyCard({ reply }: { reply: Reply }) {
    * 返信文をクリップボードにコピーし，2秒間だけ完了フィードバックを出す
    */
   function handleCopy() {
-    navigator.clipboard.writeText(reply.body).then(() => {
-      setCopied(true);
-      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard
+      .writeText(reply.body)
+      .then(() => {
+        setCopied(true);
+        if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+        copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        // 権限拒否や非HTTPS環境ではコピーできない。フィードバックを出さないことで失敗を伝える
+      });
   }
 
   /**
@@ -66,7 +71,9 @@ export function ReplyCard({ reply }: { reply: Reply }) {
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <span className="font-medium text-sm">{reply.staffName}</span>
-          <time className="text-muted-foreground text-xs">{formatDateTime(reply.createdAt)}</time>
+          <time className="text-muted-foreground text-xs" dateTime={reply.createdAt}>
+            {formatDateTime(reply.createdAt)}
+          </time>
         </div>
       </CardHeader>
 
