@@ -1,15 +1,6 @@
-import { Sparkles } from "lucide-react";
+import { GenerateForm } from "@/components/features/generate-form";
 import { type Reply, ReplyCard } from "@/components/features/reply-card";
 import { SiteHeader } from "@/components/features/site-header";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 
 /**
  * 画面確認用のダミースタッフ一覧
@@ -70,28 +61,7 @@ export default function DashboardPage() {
           <h2 className="font-semibold text-lg" id="generate-heading">
             返信文を生成
           </h2>
-          <Textarea
-            className="min-h-32"
-            placeholder="サロンボードからコピーした口コミ本文を貼り付けてください"
-          />
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Select>
-              <SelectTrigger className="w-full sm:w-56">
-                <SelectValue placeholder="担当スタッフを選択" />
-              </SelectTrigger>
-              <SelectContent>
-                {DUMMY_STAFF.map((name) => (
-                  <SelectItem key={name} value={name}>
-                    {name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button className="min-h-11 w-full sm:w-auto" disabled>
-              <Sparkles className="size-4" />
-              返信文を生成
-            </Button>
-          </div>
+          <GenerateForm staffNames={DUMMY_STAFF} />
         </section>
 
         {/* 生成履歴（SPは下，タブレット以降は右カラム） */}
