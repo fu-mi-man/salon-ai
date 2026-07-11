@@ -1,6 +1,8 @@
+import { LogOut } from "lucide-react";
 import { GenerateForm } from "@/components/features/generate-form";
 import { type Reply, ReplyCard } from "@/components/features/reply-card";
 import { SiteHeader } from "@/components/features/site-header";
+import { Button } from "@/components/ui/button";
 
 /**
  * 画面確認用のダミースタッフ一覧
@@ -53,7 +55,15 @@ const DUMMY_REPLIES: Reply[] = [
 export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <SiteHeader />
+      <SiteHeader
+        actions={
+          // ログアウトの本実装（signOut Server Action）は Step 2。ここでは見た目のみ
+          <Button className="min-h-11" type="button" variant="ghost">
+            <LogOut className="size-4" />
+            ログアウト
+          </Button>
+        }
+      />
 
       <main className="mx-auto grid max-w-5xl gap-8 px-4 py-6 md:grid-cols-2">
         {/* 生成エリア（SPは上，タブレット以降は左カラム） */}
