@@ -1,7 +1,8 @@
 "use client";
 
-import { Check, Copy, Pencil, Sparkles, Trash2, X } from "lucide-react";
+import { Check, Copy, Pencil, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { AiActionButton } from "@/components/features/ai-action-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -82,11 +83,9 @@ export function ReplyCard({ reply }: { reply: Reply }) {
               <div className="flex gap-2">
                 <Input className="min-h-11" placeholder="例: もう少し短くして" />
                 {/* AI修正の本実装は Step 6。ここでは見た目のみで押下しても何もしない */}
-                {/* AIが生成するアクションは primary（ロゼ）で統一する */}
-                <Button className="min-h-11 shrink-0 hover:bg-primary/90" type="button">
-                  <Sparkles className="size-4" />
+                <AiActionButton className="shrink-0" type="button">
                   AIで修正
-                </Button>
+                </AiActionButton>
               </div>
             </div>
           </>

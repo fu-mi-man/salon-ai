@@ -1,8 +1,7 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { AiActionButton } from "@/components/features/ai-action-button";
 import {
   Select,
   SelectContent,
@@ -43,13 +42,9 @@ export function GenerateForm({ staffNames }: { staffNames: string[] }) {
           </SelectContent>
         </Select>
         {/* 空白のみの入力では活性化しない。生成の本実装は Step 5 */}
-        <Button
-          className="min-h-11 w-full hover:bg-primary/90 sm:w-auto"
-          disabled={reviewText.trim() === ""}
-        >
-          <Sparkles className="size-4" />
+        <AiActionButton className="w-full sm:w-auto" disabled={reviewText.trim() === ""}>
           返信文を生成
-        </Button>
+        </AiActionButton>
       </div>
     </>
   );
