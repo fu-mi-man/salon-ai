@@ -1,4 +1,5 @@
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
+import Link from "next/link";
 import { GenerateForm } from "@/components/features/generate-form";
 import { type Reply, ReplyCard } from "@/components/features/reply-card";
 import { SiteHeader } from "@/components/features/site-header";
@@ -57,11 +58,21 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader
         actions={
-          // ログアウトの本実装（signOut Server Action）は Step 2。ここでは見た目のみ
-          <Button className="min-h-11" type="button" variant="ghost">
-            <LogOut className="size-4" />
-            ログアウト
-          </Button>
+          <>
+            <Button asChild className="min-h-11" variant="ghost">
+              <Link href="/change-password">
+                <KeyRound className="size-4" />
+                パスワード変更
+              </Link>
+            </Button>
+            {/* サインアウトの本実装は Step 2（#33）。ここでは /login への遷移のみ */}
+            <Button asChild className="min-h-11" variant="ghost">
+              <Link href="/login">
+                <LogOut className="size-4" />
+                ログアウト
+              </Link>
+            </Button>
+          </>
         }
       />
 
