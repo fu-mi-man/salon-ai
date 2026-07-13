@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,9 +31,9 @@ export default function LoginPage() {
             type="password"
           />
         </div>
-        {/* 認証の本実装は Step 2（#30）。ここでは見た目のみで押下しても何もしない */}
-        <Button className="min-h-11 w-full hover:bg-primary/90" type="button">
-          ログイン
+        {/* 認証の本実装は Step 2（#30）。Step 0 は /dashboard への遷移のみつなぐ（a要素なので shadcn 標準の [a]:hover が効く） */}
+        <Button asChild className="min-h-11 w-full">
+          <Link href="/dashboard">ログイン</Link>
         </Button>
       </div>
 
