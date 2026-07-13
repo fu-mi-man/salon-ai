@@ -36,5 +36,5 @@ Step0 全画面UIプロトタイプ（静的・本物ルート・インフラ不
 3. **前提issueの追加**：`/` テンプレ掃除（0-1）・Supabase CLI 導入（2-1）・初期 seed（2-3）・Playwright 基盤（2-9）を新設（旧ドラフトは存在しない基盤を前提にしていた）。
 4. **E2E は2点に集約**：①認証フロー（2-10）と ②生成happy path（5-5）。旧ドラフトのように各 Step には置かない。
 5. **正本の一本化**：旧 `stepN_*.md`（7本）は本ファイルに統合済み。実行詳細（issue一覧・受け入れ基準・状態）は GitHub を参照する。
-6. **Step0 を新設（全画面UIプロトタイプ）**：本物のルート（`/dashboard`・`/login`・`/reset-password`）に shadcn/Tailwind で静的UIを先に作り、以降の Step が振る舞い・ロジックを乗せる。捨てUIにしないため本番除外は不要。旧 Step1（UI一括）は Step0（静的）＋Step1（操作）に分割した。コンポーネントは中庸（shadcnプリミティブ＋返信カードのみ抽出）。
+6. **Step0 を新設（全画面UIプロトタイプ）**：本物のルート（`/dashboard`・`/login`・`/change-password`）に shadcn/Tailwind で静的UIを先に作り、以降の Step が振る舞い・ロジックを乗せる。捨てUIにしないため本番除外は不要。旧 Step1（UI一括）は Step0（静的）＋Step1（操作）に分割した。コンポーネントは中庸（shadcnプリミティブ＋返信カードのみ抽出）。
 7. **owner 単一運用に絞る（staff 個別ログインは後続）**：フェーズ1は owner ログインのみ実装。RLS の role 権限差・staff ロールのUI出し分け・staff 発行手順は作らない。スタッフ・例文は管理UIを作らず DB 直接投入する（`03_data.md` の方針通り）。これにより Step3 はスタッフCRUD UI を廃し「seed 投入＋選択連携」に縮小。Step2 に初期 seed（2-3）を追加し、デプロイ後・生成系の検証を可能にした。RLS は `salon_users.user_id = auth.uid()` 起点（`04_non-functional.md` の旧例の誤りを修正）。

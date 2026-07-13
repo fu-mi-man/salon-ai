@@ -24,7 +24,7 @@ docs/
 │   ├── screens/                # 画面ごとの実装上の注意
 │   │   ├── 01_dashboard.md     # ダッシュボード画面仕様
 │   │   ├── 02_login.md         # ログイン画面仕様
-│   │   └── 03_reset-password.md # パスワード再設定画面仕様
+│   │   └── 03_change-password.md # パスワード変更画面仕様
 │   └── integrations/           # 外部連携の仕様
 │       └── gemini.md           # プロンプト設計
 │
