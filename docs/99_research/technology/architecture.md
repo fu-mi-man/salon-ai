@@ -19,7 +19,7 @@ graph TB
     end
 
     subgraph supabase["Supabase"]
-      AU["Auth\n（email/password）"]
+      AU["Auth\n（ログインID＋パスワード）"]
       DB[("PostgreSQL\n返信履歴・スタッフ・トーン例文")]
     end
   end
