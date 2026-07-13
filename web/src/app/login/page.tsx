@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
  */
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-8 px-4 py-12">
+    // body が flex コンテナのため mx-auto だけだと内容幅に縮む。w-full で max-w-sm まで広げる
+    <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-8 px-4 py-12">
       <div className="space-y-2 text-center">
         <p className="font-semibold text-sm">salon-ai</p>
         <h1 className="font-semibold text-2xl">ログイン</h1>
