@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 /**
  * 画面上部に表示するサービス共通ヘッダー
- * ヘッダーを持つ画面（ダッシュボード等）が個別に配置する。認証前の画面（/login・/reset-password）では使わない
+ * ヘッダーを持つ画面（ダッシュボード等）が個別に配置する。/login・/change-password では使わない
  *
  * @param actions ヘッダー右側に表示する操作要素（ログアウトボタン等）。省略時は何も表示しない
  */
